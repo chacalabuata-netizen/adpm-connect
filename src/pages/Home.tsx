@@ -2,89 +2,59 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { 
-  Church, 
-  Clock, 
-  CalendarDays, 
-  MessageSquare, 
-  Users, 
-  Heart,
-  BookOpen,
-  Star
-} from 'lucide-react';
+import { Church, Clock, CalendarDays, MessageSquare, Users, Heart, BookOpen, Star } from 'lucide-react';
 import churchHero from '@/assets/church-hero.jpg';
-
 const Home = () => {
-  const quickLinks = [
-    {
-      icon: Clock,
-      title: 'Horário dos Cultos',
-      description: 'Veja os horários dos nossos cultos e reuniões',
-      path: '/horario',
-      variant: 'hero' as const
-    },
-    {
-      icon: CalendarDays,
-      title: 'Atividades',
-      description: 'Descubra as atividades da nossa comunidade',
-      path: '/atividades',
-      variant: 'accent' as const
-    },
-    {
-      icon: MessageSquare,
-      title: 'Anúncios',
-      description: 'Fique por dentro das últimas novidades',
-      path: '/anuncios',
-      variant: 'sacred' as const
-    },
-    {
-      icon: Users,
-      title: 'Comunidade',
-      description: 'Conecte-se com outros membros',
-      path: '/comunidade',
-      variant: 'default' as const
-    }
-  ];
-
-  const values = [
-    {
-      icon: Heart,
-      title: 'Amor',
-      description: 'Vivemos o amor de Cristo em comunidade'
-    },
-    {
-      icon: BookOpen,
-      title: 'Palavra',
-      description: 'Baseamos nossa fé na Palavra de Deus'
-    },
-    {
-      icon: Star,
-      title: 'Esperança',
-      description: 'Compartilhamos a esperança do Evangelho'
-    }
-  ];
-
-  return (
-    <div className="min-h-screen">
+  const quickLinks = [{
+    icon: Clock,
+    title: 'Horário dos Cultos',
+    description: 'Veja os horários dos nossos cultos e reuniões',
+    path: '/horario',
+    variant: 'hero' as const
+  }, {
+    icon: CalendarDays,
+    title: 'Atividades',
+    description: 'Descubra as atividades da nossa comunidade',
+    path: '/atividades',
+    variant: 'accent' as const
+  }, {
+    icon: MessageSquare,
+    title: 'Anúncios',
+    description: 'Fique por dentro das últimas novidades',
+    path: '/anuncios',
+    variant: 'sacred' as const
+  }, {
+    icon: Users,
+    title: 'Comunidade',
+    description: 'Conecte-se com outros membros',
+    path: '/comunidade',
+    variant: 'default' as const
+  }];
+  const values = [{
+    icon: Heart,
+    title: 'Amor',
+    description: 'Vivemos o amor de Cristo em comunidade'
+  }, {
+    icon: BookOpen,
+    title: 'Palavra',
+    description: 'Baseamos nossa fé na Palavra de Deus'
+  }, {
+    icon: Star,
+    title: 'Esperança',
+    description: 'Compartilhamos a esperança do Evangelho'
+  }];
+  return <div className="min-h-screen">
       {/* Hero Section */}
       <section className="relative bg-gradient-hero overflow-hidden">
         <div className="absolute inset-0">
-          <img 
-            src={churchHero} 
-            alt="Igreja ADPM Casa de Zadoque" 
-            className="w-full h-full object-cover opacity-20"
-          />
+          <img src={churchHero} alt="Igreja ADPM Casa de Zadoque" className="w-full h-full object-cover opacity-20" />
           <div className="absolute inset-0 bg-gradient-hero/80" />
         </div>
         
-        <div className="relative container mx-auto px-4 py-24">
+        <div className="relative container mx-auto px-4 py-24 rounded-sm bg-[#20374f]/20">
           <div className="text-center max-w-4xl mx-auto">
             <div className="flex items-center justify-center mb-6">
-              <img 
-                src="/lovable-uploads/b58bfd74-9a2c-42f9-b3c8-7cf171dbafa5.png" 
-                alt="ADPM Casa de Zadoque Logo"
-                className="h-16 w-16 object-contain mb-4"
-              />
+              <img src="/lovable-uploads/b58bfd74-9a2c-42f9-b3c8-7cf171dbafa5.png" alt="ADPM Casa de Zadoque Logo" className="h-16 w-16 object-contain mb-4" />
             </div>
             <h1 className="text-5xl md:text-6xl font-bold text-primary-foreground mb-6">
               Bem-vindos à ADPM
@@ -128,9 +98,8 @@ const Home = () => {
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {quickLinks.map((link, index) => {
-              const Icon = link.icon;
-              return (
-                <Card key={index} className="hover:shadow-warm transition-all duration-300 hover:-translate-y-1 border-border/50">
+            const Icon = link.icon;
+            return <Card key={index} className="hover:shadow-warm transition-all duration-300 hover:-translate-y-1 border-border/50">
                   <CardHeader className="text-center pb-4">
                     <div className="flex justify-center mb-4">
                       <div className="p-3 bg-gradient-primary rounded-full">
@@ -149,9 +118,8 @@ const Home = () => {
                       </Button>
                     </Link>
                   </CardContent>
-                </Card>
-              );
-            })}
+                </Card>;
+          })}
           </div>
         </div>
       </section>
@@ -170,9 +138,8 @@ const Home = () => {
           
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {values.map((value, index) => {
-              const Icon = value.icon;
-              return (
-                <div key={index} className="text-center">
+            const Icon = value.icon;
+            return <div key={index} className="text-center">
                   <div className="flex justify-center mb-6">
                     <div className="p-4 bg-gradient-accent rounded-full shadow-warm">
                       <Icon className="h-10 w-10 text-accent-foreground" />
@@ -184,9 +151,8 @@ const Home = () => {
                   <p className="text-muted-foreground leading-relaxed">
                     {value.description}
                   </p>
-                </div>
-              );
-            })}
+                </div>;
+          })}
           </div>
         </div>
       </section>
@@ -216,8 +182,6 @@ const Home = () => {
           </div>
         </div>
       </section>
-    </div>
-  );
+    </div>;
 };
-
 export default Home;
