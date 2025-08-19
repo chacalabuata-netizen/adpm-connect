@@ -40,7 +40,7 @@ const Schedule = () => {
             <CardHeader>
               <div className="flex items-center justify-between mb-2">
                 <CardTitle className="text-xl">{schedule.title}</CardTitle>
-                <Badge variant="sacred">{getDayName(schedule.day_of_week)}</Badge>
+                <Badge variant="secondary">{getDayName(schedule.day_of_week)}</Badge>
               </div>
               {schedule.description && (
                 <CardDescription className="text-base">
