@@ -81,7 +81,7 @@ const Home = () => {
           <div className="text-center max-w-4xl mx-auto">
             <div className="flex items-center justify-center mb-6">
               <img 
-                src="/lovable-uploads/514502a0-6171-4144-a78b-3ef691d9da3d.png" 
+                src="/lovable-uploads/b58bfd74-9a2c-42f9-b3c8-7cf171dbafa5.png" 
                 alt="ADPM Casa de Zadoque Logo"
                 className="h-16 w-16 object-contain mb-4"
               />

@@ -16,7 +16,7 @@ import {
 
 interface LayoutProps {
   userRole?: 'member' | 'admin' | null;
-  onLogout?: () => void;
+  onLogout?: () => Promise<void>;
   children: React.ReactNode;
 }
 
@@ -24,12 +24,14 @@ const Layout: React.FC<LayoutProps> = ({ userRole, onLogout, children }) => {
   const location = useLocation();
   const { toast } = useToast();
 
-  const handleLogout = () => {
-    onLogout?.();
-    toast({
-      title: "Sessão terminada",
-      description: "Até breve!",
-    });
+  const handleLogout = async () => {
+    if (onLogout) {
+      await onLogout();
+      toast({
+        title: "Sessão terminada",
+        description: "Até breve!",
+      });
+    }
   };
 
   const navItems = [
@@ -64,7 +66,7 @@ const Layout: React.FC<LayoutProps> = ({ userRole, onLogout, children }) => {
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-4">
               <img 
-                src="/lovable-uploads/514502a0-6171-4144-a78b-3ef691d9da3d.png" 
+                src="/lovable-uploads/b58bfd74-9a2c-42f9-b3c8-7cf171dbafa5.png" 
                 alt="ADPM Casa de Zadoque Logo"
                 className="h-8 w-8 object-contain"
               />
@@ -162,7 +164,7 @@ const Layout: React.FC<LayoutProps> = ({ userRole, onLogout, children }) => {
         <div className="container mx-auto px-4 text-center">
           <div className="flex items-center justify-center space-x-2 mb-4">
             <img 
-              src="/lovable-uploads/514502a0-6171-4144-a78b-3ef691d9da3d.png" 
+              src="/lovable-uploads/b58bfd74-9a2c-42f9-b3c8-7cf171dbafa5.png" 
               alt="ADPM Casa de Zadoque Logo"
               className="h-6 w-6 object-contain"
             />

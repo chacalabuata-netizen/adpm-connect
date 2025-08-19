@@ -53,6 +53,10 @@ const App = () => {
 const AppContent = () => {
   const { user, profile, loading, isAdmin, signOut } = useAuth();
 
+  const handleSignOut = async () => {
+    await signOut();
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen bg-gradient-hero flex items-center justify-center">
@@ -66,7 +70,7 @@ const AppContent = () => {
       {!user ? (
         <Auth />
       ) : isAdmin ? (
-        <Layout userRole="admin" onLogout={signOut}>
+        <Layout userRole="admin" onLogout={handleSignOut}>
           <Routes>
             <Route path="/admin" element={<AdminDashboard />} />
             <Route path="/admin/anuncios" element={<AdminAnnouncements />} />
@@ -77,7 +81,7 @@ const AppContent = () => {
           </Routes>
         </Layout>
       ) : (
-        <Layout userRole="member" onLogout={signOut}>
+        <Layout userRole="member" onLogout={handleSignOut}>
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/horario" element={<Schedule />} />

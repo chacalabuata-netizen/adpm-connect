@@ -126,6 +126,17 @@ export function useAuth() {
 
   const signOut = async () => {
     const { error } = await supabase.auth.signOut();
+    
+    if (!error) {
+      // Reset auth state immediately
+      setAuthState({
+        user: null,
+        session: null,
+        profile: null,
+        loading: false
+      });
+    }
+    
     return { error };
   };
 
