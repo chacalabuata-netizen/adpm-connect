@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -8,14 +9,17 @@ import { Church, Shield } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
 interface AuthProps {
-  onLogin: (email: string, role: 'member' | 'admin') => void;
+  onLogin?: (email: string, role: 'member' | 'admin') => void; // Keep for compatibility
 }
 
-const Auth: React.FC<AuthProps> = ({ onLogin }) => {
+const Auth: React.FC<AuthProps> = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [displayName, setDisplayName] = useState('');
   const [loading, setLoading] = useState(false);
+  const [isSignUp, setIsSignUp] = useState(false);
   const { toast } = useToast();
+  const { signIn, signUp } = useAuth();
 
   const handleSubmit = async (e: React.FormEvent, role: 'member' | 'admin') => {
     e.preventDefault();
@@ -31,20 +35,28 @@ const Auth: React.FC<AuthProps> = ({ onLogin }) => {
 
     setLoading(true);
     
-    // Simulate authentication - Replace with actual Supabase auth
     try {
-      await new Promise(resolve => setTimeout(resolve, 1000)); // Simulate API call
-      
+      if (isSignUp) {
+        const { error } = await signUp(email.trim(), password, displayName.trim());
+        if (error) throw error;
+        
+        toast({
+          title: "Registo efetuado",
+          description: "Verifique o seu email para confirmar a conta.",
+        });
+      } else {
+        const { error } = await signIn(email.trim(), password);
+        if (error) throw error;
+        
+        toast({
+          title: "Bem-vindo!",
+          description: `Sessão iniciada com sucesso.`,
+        });
+      }
+    } catch (error: any) {
       toast({
-        title: "Bem-vindo!",
-        description: `Sessão iniciada como ${role === 'admin' ? 'Administrador' : 'Membro'}.`,
-      });
-      
-      onLogin(email, role);
-    } catch (error) {
-      toast({
-        title: "Erro ao iniciar sessão",
-        description: "Verifique as suas credenciais e tente novamente.",
+        title: isSignUp ? "Erro ao registar" : "Erro ao iniciar sessão",
+        description: error.message,
         variant: "destructive",
       });
     } finally {
@@ -70,9 +82,11 @@ const Auth: React.FC<AuthProps> = ({ onLogin }) => {
 
         <Card className="border-border/20 shadow-deep backdrop-blur-sm bg-card/95">
           <CardHeader className="text-center">
-            <CardTitle className="text-2xl">Iniciar Sessão</CardTitle>
+            <CardTitle className="text-2xl">
+              {isSignUp ? 'Criar Conta' : 'Iniciar Sessão'}
+            </CardTitle>
             <CardDescription>
-              Aceda à sua conta para continuar
+              {isSignUp ? 'Registe-se para aceder à plataforma' : 'Aceda à sua conta para continuar'}
             </CardDescription>
           </CardHeader>
           
@@ -91,6 +105,20 @@ const Auth: React.FC<AuthProps> = ({ onLogin }) => {
               
               <TabsContent value="member">
                 <form onSubmit={(e) => handleSubmit(e, 'member')} className="space-y-4">
+                  {isSignUp && (
+                    <div className="space-y-2">
+                      <Label htmlFor="member-name">Nome (opcional)</Label>
+                      <Input
+                        id="member-name"
+                        type="text"
+                        placeholder="Seu nome completo"
+                        value={displayName}
+                        onChange={(e) => setDisplayName(e.target.value)}
+                        autoComplete="name"
+                      />
+                    </div>
+                  )}
+                  
                   <div className="space-y-2">
                     <Label htmlFor="member-email">Email</Label>
                     <Input
@@ -114,7 +142,7 @@ const Auth: React.FC<AuthProps> = ({ onLogin }) => {
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
                       required
-                      autoComplete="current-password"
+                      autoComplete={isSignUp ? "new-password" : "current-password"}
                     />
                   </div>
                   
@@ -124,13 +152,27 @@ const Auth: React.FC<AuthProps> = ({ onLogin }) => {
                     disabled={loading}
                     variant="sacred"
                   >
-                    {loading ? "A entrar..." : "Entrar como Membro"}
+                    {loading ? "A processar..." : isSignUp ? "Registar como Membro" : "Entrar como Membro"}
                   </Button>
                 </form>
               </TabsContent>
               
               <TabsContent value="admin">
                 <form onSubmit={(e) => handleSubmit(e, 'admin')} className="space-y-4">
+                  {isSignUp && (
+                    <div className="space-y-2">
+                      <Label htmlFor="admin-name">Nome (opcional)</Label>
+                      <Input
+                        id="admin-name"
+                        type="text"
+                        placeholder="Seu nome completo"
+                        value={displayName}
+                        onChange={(e) => setDisplayName(e.target.value)}
+                        autoComplete="name"
+                      />
+                    </div>
+                  )}
+                  
                   <div className="space-y-2">
                     <Label htmlFor="admin-email">Email de Administrador</Label>
                     <Input
@@ -154,7 +196,7 @@ const Auth: React.FC<AuthProps> = ({ onLogin }) => {
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
                       required
-                      autoComplete="current-password"
+                      autoComplete={isSignUp ? "new-password" : "current-password"}
                     />
                   </div>
                   
@@ -164,18 +206,30 @@ const Auth: React.FC<AuthProps> = ({ onLogin }) => {
                     disabled={loading}
                     variant="hero"
                   >
-                    {loading ? "A entrar..." : "Entrar como Admin"}
+                    {loading ? "A processar..." : isSignUp ? "Registar como Admin" : "Entrar como Admin"}
                   </Button>
                 </form>
               </TabsContent>
             </Tabs>
             
             <div className="mt-6 text-center">
+              <Button
+                variant="link"
+                onClick={() => setIsSignUp(!isSignUp)}
+                className="text-sm"
+              >
+                {isSignUp ? 'Já tem conta? Iniciar sessão' : 'Não tem conta? Registar'}
+              </Button>
+            </div>
+            
+            <div className="mt-4 text-center">
               <p className="text-sm text-muted-foreground">
-                Primeira vez aqui?{' '}
-                <span className="text-primary font-medium">
-                  Contacte a liderança para obter acesso
-                </span>
+                {isSignUp ? 'Ao registar-se, aceita os termos de utilização' : 'Primeira vez aqui?'}{' '}
+                {!isSignUp && (
+                  <span className="text-primary font-medium">
+                    Contacte a liderança para obter acesso
+                  </span>
+                )}
               </p>
             </div>
           </CardContent>
