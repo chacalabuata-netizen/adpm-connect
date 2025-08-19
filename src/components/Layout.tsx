@@ -43,8 +43,17 @@ const Layout: React.FC<LayoutProps> = ({ userRole, onLogout, children }) => {
     { path: '/website', label: 'Website', icon: Globe },
   ];
 
+  const socialItems = [
+    { path: 'https://facebook.com', label: 'Facebook', icon: () => <span className="text-blue-600">📘</span>, external: true },
+    { path: 'https://youtube.com', label: 'YouTube', icon: () => <span className="text-red-600">📺</span>, external: true },
+  ];
+
   const adminItems = [
-    { path: '/admin', label: 'Painel Admin', icon: MessageSquare },
+    { path: '/admin', label: 'Dashboard', icon: Church },
+    { path: '/admin/anuncios', label: 'Anúncios', icon: MessageSquare },
+    { path: '/admin/horarios', label: 'Horários', icon: Clock },
+    { path: '/admin/atividades', label: 'Atividades', icon: CalendarDays },
+    { path: '/admin/utilizadores', label: 'Utilizadores', icon: Users },
   ];
 
   return (
@@ -87,24 +96,53 @@ const Layout: React.FC<LayoutProps> = ({ userRole, onLogout, children }) => {
       {userRole && (
         <nav className="bg-card border-b border-border shadow-soft">
           <div className="container mx-auto px-4">
-            <div className="flex space-x-1 overflow-x-auto py-2">
-              {(userRole === 'admin' ? adminItems : navItems).map((item) => {
-                const Icon = item.icon;
-                const isActive = location.pathname === item.path;
-                
-                return (
-                  <Link key={item.path} to={item.path}>
-                    <Button
-                      variant={isActive ? "sacred" : "ghost"}
-                      size="sm"
-                      className="whitespace-nowrap min-w-fit"
-                    >
-                      <Icon className="h-4 w-4 mr-2" />
-                      {item.label}
-                    </Button>
-                  </Link>
-                );
-              })}
+            <div className="flex justify-between overflow-x-auto py-2">
+              <div className="flex space-x-1">
+                {(userRole === 'admin' ? adminItems : navItems).map((item) => {
+                  const Icon = item.icon;
+                  const isActive = location.pathname === item.path;
+                  
+                  return (
+                    <Link key={item.path} to={item.path}>
+                      <Button
+                        variant={isActive ? "default" : "ghost"}
+                        size="sm"
+                        className="whitespace-nowrap min-w-fit"
+                      >
+                        <Icon className="h-4 w-4 mr-2" />
+                        {item.label}
+                      </Button>
+                    </Link>
+                  );
+                })}
+              </div>
+              
+              {userRole === 'member' && (
+                <div className="flex space-x-1 ml-4">
+                  {socialItems.map((item) => {
+                    const Icon = item.icon;
+                    
+                    return (
+                      <a 
+                        key={item.path} 
+                        href={item.path} 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="inline-flex"
+                      >
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="whitespace-nowrap min-w-fit"
+                        >
+                          <Icon />
+                          <span className="ml-2">{item.label}</span>
+                        </Button>
+                      </a>
+                    );
+                  })}
+                </div>
+              )}
             </div>
           </div>
         </nav>
