@@ -80,7 +80,11 @@ const Home = () => {
         <div className="relative container mx-auto px-4 py-24">
           <div className="text-center max-w-4xl mx-auto">
             <div className="flex items-center justify-center mb-6">
-              <Church className="h-16 w-16 text-primary-foreground mb-4" />
+              <img 
+                src="/lovable-uploads/514502a0-6171-4144-a78b-3ef691d9da3d.png" 
+                alt="ADPM Casa de Zadoque Logo"
+                className="h-16 w-16 object-contain mb-4"
+              />
             </div>
             <h1 className="text-5xl md:text-6xl font-bold text-primary-foreground mb-6">
               Bem-vindos à ADPM

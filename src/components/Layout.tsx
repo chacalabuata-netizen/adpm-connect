@@ -63,7 +63,11 @@ const Layout: React.FC<LayoutProps> = ({ userRole, onLogout, children }) => {
         <div className="container mx-auto px-4 py-6">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-4">
-              <Church className="h-8 w-8 text-primary-foreground" />
+              <img 
+                src="/lovable-uploads/514502a0-6171-4144-a78b-3ef691d9da3d.png" 
+                alt="ADPM Casa de Zadoque Logo"
+                className="h-8 w-8 object-contain"
+              />
               <div>
                 <h1 className="text-2xl font-bold text-primary-foreground">
                   ADPM Casa de Zadoque
@@ -157,7 +161,11 @@ const Layout: React.FC<LayoutProps> = ({ userRole, onLogout, children }) => {
       <footer className="bg-primary text-primary-foreground py-8 mt-16">
         <div className="container mx-auto px-4 text-center">
           <div className="flex items-center justify-center space-x-2 mb-4">
-            <Church className="h-6 w-6" />
+            <img 
+              src="/lovable-uploads/514502a0-6171-4144-a78b-3ef691d9da3d.png" 
+              alt="ADPM Casa de Zadoque Logo"
+              className="h-6 w-6 object-contain"
+            />
             <span className="font-semibold">ADPM Casa de Zadoque</span>
           </div>
           <p className="text-primary-foreground/80 text-sm">

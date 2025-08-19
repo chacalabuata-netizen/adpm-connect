@@ -71,7 +71,11 @@ const Auth: React.FC<AuthProps> = () => {
         <div className="text-center mb-8">
           <div className="flex justify-center mb-4">
             <div className="p-4 bg-primary-foreground/20 rounded-full backdrop-blur-sm">
-              <Church className="h-12 w-12 text-primary-foreground" />
+              <img 
+                src="/lovable-uploads/514502a0-6171-4144-a78b-3ef691d9da3d.png" 
+                alt="ADPM Casa de Zadoque Logo"
+                className="h-12 w-12 object-contain"
+              />
             </div>
           </div>
           <h1 className="text-3xl font-bold text-primary-foreground mb-2">
