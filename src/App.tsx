@@ -52,9 +52,14 @@ const App = () => {
 
 const AppContent = () => {
   const { user, profile, loading, isAdmin, signOut } = useAuth();
+  const [adminSection, setAdminSection] = useState('dashboard');
 
   const handleSignOut = async () => {
     await signOut();
+  };
+
+  const handleAdminNavigate = (section: string) => {
+    setAdminSection(section);
   };
 
   if (loading) {
@@ -72,7 +77,7 @@ const AppContent = () => {
       ) : isAdmin ? (
         <Layout userRole="admin" onLogout={handleSignOut}>
           <Routes>
-            <Route path="/admin" element={<AdminDashboard />} />
+            <Route path="/admin" element={<AdminDashboard onNavigate={handleAdminNavigate} />} />
             <Route path="/admin/anuncios" element={<AdminAnnouncements />} />
             <Route path="/admin/horarios" element={<AdminSchedules />} />
             <Route path="/admin/atividades" element={<AdminActivities />} />
