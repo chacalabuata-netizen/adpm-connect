@@ -28,7 +28,8 @@ import CommunityPage from "./pages/Community";
 import NotFound from "./pages/NotFound";
 
 // Admin Components
-import { AdminDashboard, AdminAnnouncements, AdminSchedules, AdminActivities, AdminUsers } from "./components/AdminComponents";
+import { AdminDashboard, AdminAnnouncements, AdminSchedules, AdminActivities } from "./components/AdminComponents";
+import { AdminUsers } from "./components/AdminUsers";
 
 // Hooks
 import { useAuth } from "./hooks/useAuth";

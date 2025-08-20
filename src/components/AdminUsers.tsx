@@ -16,6 +16,7 @@ interface UserProfile {
   email: string;
   display_name?: string;
   role: string;
+  member_status?: string;
   created_at: string;
   updated_at: string;
 }
@@ -100,6 +101,53 @@ export const AdminUsers = () => {
     }
   };
 
+  const getMemberStatusLabel = (status?: string) => {
+    switch (status) {
+      case 'membro_batizado':
+        return 'Membro Batizado';
+      case 'visitante':
+        return 'Visitante';
+      default:
+        return 'Não definido';
+    }
+  };
+
+  const getMemberStatusColor = (status?: string) => {
+    switch (status) {
+      case 'membro_batizado':
+        return 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200';
+      case 'visitante':
+        return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200';
+      default:
+        return 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-200';
+    }
+  };
+
+  const updateMemberStatus = async (userId: string, newStatus: string) => {
+    try {
+      const { error } = await supabase
+        .from('profiles')
+        .update({ member_status: newStatus })
+        .eq('id', userId);
+
+      if (error) throw error;
+
+      toast({
+        title: "Sucesso",
+        description: "Status do membro atualizado com sucesso",
+      });
+
+      fetchUsers(); // Refresh users list
+    } catch (error) {
+      console.error('Error updating member status:', error);
+      toast({
+        title: "Erro",
+        description: "Não foi possível atualizar o status do membro",
+        variant: "destructive",
+      });
+    }
+  };
+
   useEffect(() => {
     fetchUsers();
 
@@ -137,7 +185,7 @@ export const AdminUsers = () => {
       </div>
 
       {/* Stats */}
-      <div className="grid gap-4 md:grid-cols-3">
+      <div className="grid gap-4 md:grid-cols-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Total de Utilizadores</CardTitle>
@@ -162,12 +210,24 @@ export const AdminUsers = () => {
         
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Membros</CardTitle>
-            <Users className="h-4 w-4 text-muted-foreground" />
+            <CardTitle className="text-sm font-medium">Membros Batizados</CardTitle>
+            <UserCheck className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {users.filter(user => user.role === 'member').length}
+              {users.filter(user => user.member_status === 'membro_batizado').length}
+            </div>
+          </CardContent>
+        </Card>
+        
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Visitantes</CardTitle>
+            <UserX className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">
+              {users.filter(user => user.member_status === 'visitante').length}
             </div>
           </CardContent>
         </Card>
@@ -228,22 +288,42 @@ export const AdminUsers = () => {
                   </div>
                   
                   <div className="flex items-center gap-4">
-                    <Badge className={getRoleColor(user.role)}>
-                      {getRoleLabel(user.role)}
-                    </Badge>
+                    <div className="flex flex-col gap-2">
+                      <Badge className={getRoleColor(user.role)}>
+                        {getRoleLabel(user.role)}
+                      </Badge>
+                      <Badge className={getMemberStatusColor(user.member_status)}>
+                        {getMemberStatusLabel(user.member_status)}
+                      </Badge>
+                    </div>
                     
-                    <Select
-                      value={user.role}
-                      onValueChange={(newRole) => updateUserRole(user.id, newRole)}
-                    >
-                      <SelectTrigger className="w-32">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="member">Membro</SelectItem>
-                        <SelectItem value="admin">Admin</SelectItem>
-                      </SelectContent>
-                    </Select>
+                    <div className="flex flex-col gap-2">
+                      <Select
+                        value={user.role}
+                        onValueChange={(newRole) => updateUserRole(user.id, newRole)}
+                      >
+                        <SelectTrigger className="w-32">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="member">Membro</SelectItem>
+                          <SelectItem value="admin">Admin</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      
+                      <Select
+                        value={user.member_status || 'visitante'}
+                        onValueChange={(newStatus) => updateMemberStatus(user.id, newStatus)}
+                      >
+                        <SelectTrigger className="w-32">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="visitante">Visitante</SelectItem>
+                          <SelectItem value="membro_batizado">Membro Batizado</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
                   </div>
                 </div>
               ))}

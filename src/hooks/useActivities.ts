@@ -46,6 +46,80 @@ export function useActivities() {
     }
   };
 
+  const createActivity = async (activity: Omit<Activity, 'id' | 'created_at' | 'updated_at'>) => {
+    try {
+      const { error } = await supabase
+        .from('activities')
+        .insert([activity]);
+
+      if (error) throw error;
+
+      toast({
+        title: "Sucesso",
+        description: "Atividade criada com sucesso",
+      });
+      
+      await fetchActivities();
+    } catch (error: any) {
+      toast({
+        title: "Erro ao criar atividade",
+        description: error.message,
+        variant: "destructive"
+      });
+      throw error;
+    }
+  };
+
+  const updateActivity = async (id: string, updates: Partial<Activity>) => {
+    try {
+      const { error } = await supabase
+        .from('activities')
+        .update(updates)
+        .eq('id', id);
+
+      if (error) throw error;
+
+      toast({
+        title: "Sucesso",
+        description: "Atividade atualizada com sucesso",
+      });
+      
+      await fetchActivities();
+    } catch (error: any) {
+      toast({
+        title: "Erro ao atualizar atividade",
+        description: error.message,
+        variant: "destructive"
+      });
+      throw error;
+    }
+  };
+
+  const deleteActivity = async (id: string) => {
+    try {
+      const { error } = await supabase
+        .from('activities')
+        .delete()
+        .eq('id', id);
+
+      if (error) throw error;
+
+      toast({
+        title: "Sucesso",
+        description: "Atividade eliminada com sucesso",
+      });
+      
+      await fetchActivities();
+    } catch (error: any) {
+      toast({
+        title: "Erro ao eliminar atividade",
+        description: error.message,
+        variant: "destructive"
+      });
+      throw error;
+    }
+  };
+
   const formatActivityTime = (timeStart: string, timeEnd?: string) => {
     const start = timeStart.substring(0, 5); // Remove seconds
     if (timeEnd) {
@@ -61,12 +135,27 @@ export function useActivities() {
 
   useEffect(() => {
     fetchActivities();
+
+    // Set up real-time subscription
+    const channel = supabase
+      .channel('activities_changes')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'activities' }, () => {
+        fetchActivities();
+      })
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, []);
 
   return {
     activities,
     loading,
     fetchActivities,
+    createActivity,
+    updateActivity,
+    deleteActivity,
     formatActivityTime,
     getDayName,
     DAYS_OF_WEEK

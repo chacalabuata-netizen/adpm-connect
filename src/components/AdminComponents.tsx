@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -6,7 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
-import { Separator } from '@/components/ui/separator';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { 
   MessageSquare, 
   TrendingUp,
@@ -210,7 +210,7 @@ export const AdminDashboard = ({ onNavigate }: { onNavigate: (section: string) =
           <Button 
             variant="outline" 
             className="h-16 flex-col gap-2"
-            onClick={() => window.open('#', '_blank')}
+            onClick={() => window.open('https://play.google.com/store/apps/details?id=com.adpm.connect', '_blank')}
           >
             <Download className="h-6 w-6" />
             <span className="text-sm">Download Android</span>
@@ -218,7 +218,7 @@ export const AdminDashboard = ({ onNavigate }: { onNavigate: (section: string) =
           <Button 
             variant="outline" 
             className="h-16 flex-col gap-2"
-            onClick={() => window.open('#', '_blank')}
+            onClick={() => window.open('https://apps.apple.com/app/adpm-connect', '_blank')}
           >
             <Download className="h-6 w-6" />
             <span className="text-sm">Download iOS</span>
@@ -392,502 +392,532 @@ export const AdminAnnouncements = () => {
   );
 };
 
-// Admin Schedules Component
-export const AdminSchedules = () => {
-  const { schedules, loading, fetchSchedules, getDayName, formatScheduleTime, DAYS_OF_WEEK } = useSchedules();
-  const { toast } = useToast();
-  const [formData, setFormData] = useState({ 
-    title: '', 
-    description: '', 
-    day_of_week: 0, 
-    time_start: '', 
-    time_end: '', 
-    visible: true 
-  });
-  const [editingId, setEditingId] = useState<string | null>(null);
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!formData.title.trim() || !formData.time_start.trim()) return;
-
-    try {
-      const scheduleData = {
-        ...formData,
-        time_end: formData.time_end || null
-      };
-
-      if (editingId) {
-        // Update schedule logic here
-        toast({ title: "Horário atualizado", description: "Horário atualizado com sucesso." });
-      } else {
-        // Create schedule logic here  
-        toast({ title: "Horário criado", description: "Novo horário criado com sucesso." });
-      }
-      
-      setFormData({ title: '', description: '', day_of_week: 0, time_start: '', time_end: '', visible: true });
-      setEditingId(null);
-      fetchSchedules();
-    } catch (error) {
-      toast({ title: "Erro", description: "Ocorreu um erro. Tente novamente.", variant: "destructive" });
-    }
-  };
-
-  const handleEdit = (schedule: any) => {
-    setFormData({ 
-      title: schedule.title, 
-      description: schedule.description || '', 
-      day_of_week: schedule.day_of_week,
-      time_start: schedule.time_start,
-      time_end: schedule.time_end || '',
-      visible: schedule.visible 
-    });
-    setEditingId(schedule.id);
-  };
-
-  const handleDelete = async (id: string) => {
-    if (window.confirm('Tem certeza que deseja eliminar este horário?')) {
-      try {
-        // Delete schedule logic here
-        toast({ title: "Horário eliminado", description: "Horário eliminado com sucesso." });
-        fetchSchedules();
-      } catch (error) {
-        toast({ title: "Erro", description: "Ocorreu um erro ao eliminar.", variant: "destructive" });
-      }
-    }
-  };
-
-  const toggleVisibility = async (id: string, currentVisibility: boolean) => {
-    try {
-      // Toggle visibility logic here
-      toast({ 
-        title: `Horário ${!currentVisibility ? 'publicado' : 'ocultado'}`, 
-        description: `Horário ${!currentVisibility ? 'publicado' : 'ocultado'} com sucesso.` 
-      });
-      fetchSchedules();
-    } catch (error) {
-      toast({ title: "Erro", description: "Ocorreu um erro. Tente novamente.", variant: "destructive" });
-    }
-  };
-
-  return (
-    <div className="container mx-auto px-4 py-8">
-      <h1 className="text-4xl font-bold text-center mb-8">Gestão de Horários</h1>
-      
-      <div className="grid lg:grid-cols-2 gap-8">
-        {/* Form */}
-        <Card>
-          <CardHeader>
-            <CardTitle>{editingId ? 'Editar' : 'Novo'} Horário</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div>
-                <Label htmlFor="title">Título</Label>
-                <Input
-                  id="title"
-                  value={formData.title}
-                  onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                  placeholder="Ex: Culto Dominical"
-                  required
-                />
-              </div>
-              <div>
-                <Label htmlFor="description">Descrição</Label>
-                <Textarea
-                  id="description"
-                  value={formData.description}
-                  onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                  placeholder="Descrição opcional"
-                  rows={3}
-                />
-              </div>
-              <div>
-                <Label htmlFor="day_of_week">Dia da Semana</Label>
-                <Select 
-                  value={formData.day_of_week.toString()} 
-                  onValueChange={(value) => setFormData({ ...formData, day_of_week: parseInt(value) })}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Selecione o dia" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {DAYS_OF_WEEK.map((day, index) => (
-                      <SelectItem key={index} value={index.toString()}>
-                        {day}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <Label htmlFor="time_start">Hora de Início</Label>
-                  <Input
-                    id="time_start"
-                    type="time"
-                    value={formData.time_start}
-                    onChange={(e) => setFormData({ ...formData, time_start: e.target.value })}
-                    required
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="time_end">Hora de Fim</Label>
-                  <Input
-                    id="time_end"
-                    type="time"
-                    value={formData.time_end}
-                    onChange={(e) => setFormData({ ...formData, time_end: e.target.value })}
-                  />
-                </div>
-              </div>
-              <div className="flex items-center space-x-2">
-                <Switch
-                  id="visible"
-                  checked={formData.visible}
-                  onCheckedChange={(checked) => setFormData({ ...formData, visible: checked })}
-                />
-                <Label htmlFor="visible">Visível</Label>
-              </div>
-              <div className="flex gap-2">
-                <Button type="submit">
-                  <Save className="h-4 w-4 mr-2" />
-                  {editingId ? 'Atualizar' : 'Criar'}
-                </Button>
-                {editingId && (
-                  <Button 
-                    type="button" 
-                    variant="outline" 
-                    onClick={() => {
-                      setEditingId(null);
-                      setFormData({ title: '', description: '', day_of_week: 0, time_start: '', time_end: '', visible: true });
-                    }}
-                  >
-                    Cancelar
-                  </Button>
-                )}
-              </div>
-            </form>
-          </CardContent>
-        </Card>
-
-        {/* List */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Horários Existentes</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4 max-h-96 overflow-y-auto">
-              {loading && <div className="text-center py-4">Carregando...</div>}
-              {schedules.map((schedule) => (
-                <div key={schedule.id} className="border rounded-lg p-4">
-                  <div className="flex items-start justify-between mb-2">
-                    <div>
-                      <h3 className="font-semibold">{schedule.title}</h3>
-                      <p className="text-sm text-muted-foreground">
-                        {getDayName(schedule.day_of_week)} - {formatScheduleTime(schedule.time_start, schedule.time_end)}
-                      </p>
-                    </div>
-                    <Badge variant={schedule.visible ? "default" : "secondary"}>
-                      {schedule.visible ? 'Visível' : 'Oculto'}
-                    </Badge>
-                  </div>
-                  {schedule.description && (
-                    <p className="text-sm text-muted-foreground mb-3">{schedule.description}</p>
-                  )}
-                  <div className="flex gap-2 flex-wrap">
-                    <Button size="sm" variant="outline" onClick={() => handleEdit(schedule)}>
-                      <Edit className="h-4 w-4 mr-1" />
-                      Editar
-                    </Button>
-                    <Button 
-                      size="sm" 
-                      variant={schedule.visible ? "secondary" : "default"}
-                      onClick={() => toggleVisibility(schedule.id, schedule.visible)}
-                    >
-                      {schedule.visible ? (
-                        <>
-                          <EyeOff className="h-4 w-4 mr-1" />
-                          Ocultar
-                        </>
-                      ) : (
-                        <>
-                          <Eye className="h-4 w-4 mr-1" />
-                          Publicar
-                        </>
-                      )}
-                    </Button>
-                    <Button 
-                      size="sm" 
-                      variant="destructive" 
-                      onClick={() => handleDelete(schedule.id)}
-                    >
-                      <Trash2 className="h-4 w-4 mr-1" />
-                      Eliminar
-                    </Button>
-                  </div>
-                </div>
-              ))}
-              {schedules.length === 0 && !loading && (
-                <div className="text-center py-8 text-muted-foreground">
-                  Nenhum horário encontrado. Crie o primeiro horário.
-                </div>
-              )}
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-    </div>
-  );
-};
-
-// Admin Activities Component
+// Admin Activities Component 
 export const AdminActivities = () => {
-  const { activities, loading, fetchActivities, getDayName, formatActivityTime, DAYS_OF_WEEK } = useActivities();
+  const { 
+    activities, 
+    loading: activitiesLoading, 
+    createActivity, 
+    updateActivity, 
+    deleteActivity,
+    getDayName,
+    formatActivityTime,
+    DAYS_OF_WEEK
+  } = useActivities();
   const { toast } = useToast();
-  const [formData, setFormData] = useState({ 
-    title: '', 
-    description: '', 
-    day_of_week: 0, 
-    time_start: '', 
-    time_end: '', 
-    visible: true 
+  
+  const [isCreatingActivity, setIsCreatingActivity] = useState(false);
+  const [editingActivity, setEditingActivity] = useState<any>(null);
+  const [newActivity, setNewActivity] = useState({
+    title: '',
+    description: '',
+    day_of_week: 0,
+    time_start: '',
+    time_end: '',
+    visible: true
   });
-  const [editingId, setEditingId] = useState<string | null>(null);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!formData.title.trim() || !formData.time_start.trim()) return;
-
-    try {
-      const activityData = {
-        ...formData,
-        time_end: formData.time_end || null
-      };
-
-      if (editingId) {
-        // Update activity logic here
-        toast({ title: "Atividade atualizada", description: "Atividade atualizada com sucesso." });
-      } else {
-        // Create activity logic here  
-        toast({ title: "Atividade criada", description: "Nova atividade criada com sucesso." });
-      }
-      
-      setFormData({ title: '', description: '', day_of_week: 0, time_start: '', time_end: '', visible: true });
-      setEditingId(null);
-      fetchActivities();
-    } catch (error) {
-      toast({ title: "Erro", description: "Ocorreu um erro. Tente novamente.", variant: "destructive" });
-    }
-  };
-
-  const handleEdit = (activity: any) => {
-    setFormData({ 
-      title: activity.title, 
-      description: activity.description || '', 
-      day_of_week: activity.day_of_week,
-      time_start: activity.time_start,
-      time_end: activity.time_end || '',
-      visible: activity.visible 
-    });
-    setEditingId(activity.id);
-  };
-
-  const handleDelete = async (id: string) => {
-    if (window.confirm('Tem certeza que deseja eliminar esta atividade?')) {
-      try {
-        // Delete activity logic here
-        toast({ title: "Atividade eliminada", description: "Atividade eliminada com sucesso." });
-        fetchActivities();
-      } catch (error) {
-        toast({ title: "Erro", description: "Ocorreu um erro ao eliminar.", variant: "destructive" });
-      }
-    }
-  };
-
-  const toggleVisibility = async (id: string, currentVisibility: boolean) => {
-    try {
-      // Toggle visibility logic here
-      toast({ 
-        title: `Atividade ${!currentVisibility ? 'publicada' : 'ocultada'}`, 
-        description: `Atividade ${!currentVisibility ? 'publicada' : 'ocultada'} com sucesso.` 
+  useEffect(() => {
+    if (editingActivity) {
+      setNewActivity({
+        title: editingActivity.title,
+        description: editingActivity.description || '',
+        day_of_week: editingActivity.day_of_week,
+        time_start: editingActivity.time_start,
+        time_end: editingActivity.time_end || '',
+        visible: editingActivity.visible
       });
-      fetchActivities();
+    }
+  }, [editingActivity]);
+
+  const handleCreateActivity = async () => {
+    try {
+      if (editingActivity) {
+        await updateActivity(editingActivity.id, {
+          ...newActivity,
+          day_of_week: parseInt(newActivity.day_of_week.toString()),
+        });
+      } else {
+        await createActivity({
+          ...newActivity,
+          day_of_week: parseInt(newActivity.day_of_week.toString()),
+        });
+      }
+
+      setNewActivity({
+        title: '',
+        description: '',
+        day_of_week: 0,
+        time_start: '',
+        time_end: '',
+        visible: true
+      });
+      setEditingActivity(null);
+      setIsCreatingActivity(false);
     } catch (error) {
-      toast({ title: "Erro", description: "Ocorreu um erro. Tente novamente.", variant: "destructive" });
+      // Error handled in hook
     }
   };
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <h1 className="text-4xl font-bold text-center mb-8">Gestão de Atividades</h1>
-      
+    <div className="space-y-6">
+      <div>
+        <h1 className="text-3xl font-bold tracking-tight">Gestão de Atividades</h1>
+        <p className="text-muted-foreground">
+          Gerencie as atividades e eventos da igreja
+        </p>
+      </div>
+
       <div className="grid lg:grid-cols-2 gap-8">
-        {/* Form */}
         <Card>
           <CardHeader>
-            <CardTitle>{editingId ? 'Editar' : 'Nova'} Atividade</CardTitle>
+            <CardTitle>Nova Atividade</CardTitle>
           </CardHeader>
           <CardContent>
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div>
-                <Label htmlFor="title">Título</Label>
-                <Input
-                  id="title"
-                  value={formData.title}
-                  onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                  placeholder="Ex: Estudo Bíblico"
-                  required
-                />
-              </div>
-              <div>
-                <Label htmlFor="description">Descrição</Label>
-                <Textarea
-                  id="description"
-                  value={formData.description}
-                  onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                  placeholder="Descrição opcional"
-                  rows={3}
-                />
-              </div>
-              <div>
-                <Label htmlFor="day_of_week">Dia da Semana</Label>
-                <Select 
-                  value={formData.day_of_week.toString()} 
-                  onValueChange={(value) => setFormData({ ...formData, day_of_week: parseInt(value) })}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Selecione o dia" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {DAYS_OF_WEEK.map((day, index) => (
-                      <SelectItem key={index} value={index.toString()}>
-                        {day}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <Label htmlFor="time_start">Hora de Início</Label>
-                  <Input
-                    id="time_start"
-                    type="time"
-                    value={formData.time_start}
-                    onChange={(e) => setFormData({ ...formData, time_start: e.target.value })}
-                    required
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="time_end">Hora de Fim</Label>
-                  <Input
-                    id="time_end"
-                    type="time"
-                    value={formData.time_end}
-                    onChange={(e) => setFormData({ ...formData, time_end: e.target.value })}
-                  />
-                </div>
-              </div>
-              <div className="flex items-center space-x-2">
-                <Switch
-                  id="visible"
-                  checked={formData.visible}
-                  onCheckedChange={(checked) => setFormData({ ...formData, visible: checked })}
-                />
-                <Label htmlFor="visible">Visível</Label>
-              </div>
-              <div className="flex gap-2">
-                <Button type="submit">
-                  <Save className="h-4 w-4 mr-2" />
-                  {editingId ? 'Atualizar' : 'Criar'}
-                </Button>
-                {editingId && (
-                  <Button 
-                    type="button" 
-                    variant="outline" 
-                    onClick={() => {
-                      setEditingId(null);
-                      setFormData({ title: '', description: '', day_of_week: 0, time_start: '', time_end: '', visible: true });
-                    }}
-                  >
-                    Cancelar
-                  </Button>
-                )}
-              </div>
-            </form>
+            <Button 
+              onClick={() => {
+                setIsCreatingActivity(true);
+                setEditingActivity(null);
+                setNewActivity({
+                  title: '',
+                  description: '',
+                  day_of_week: 0,
+                  time_start: '',
+                  time_end: '',
+                  visible: true
+                });
+              }}
+              className="w-full"
+            >
+              <Plus className="h-4 w-4 mr-2" />
+              Nova Atividade
+            </Button>
           </CardContent>
         </Card>
 
-        {/* List */}
         <Card>
           <CardHeader>
             <CardTitle>Atividades Existentes</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="space-y-4 max-h-96 overflow-y-auto">
-              {loading && <div className="text-center py-4">Carregando...</div>}
-              {activities.map((activity) => (
-                <div key={activity.id} className="border rounded-lg p-4">
-                  <div className="flex items-start justify-between mb-2">
-                    <div>
-                      <h3 className="font-semibold">{activity.title}</h3>
-                      <p className="text-sm text-muted-foreground">
-                        {getDayName(activity.day_of_week)} - {formatActivityTime(activity.time_start, activity.time_end)}
-                      </p>
-                    </div>
-                    <Badge variant={activity.visible ? "default" : "secondary"}>
-                      {activity.visible ? 'Visível' : 'Oculto'}
-                    </Badge>
-                  </div>
-                  {activity.description && (
-                    <p className="text-sm text-muted-foreground mb-3">{activity.description}</p>
-                  )}
-                  <div className="flex gap-2 flex-wrap">
-                    <Button size="sm" variant="outline" onClick={() => handleEdit(activity)}>
-                      <Edit className="h-4 w-4 mr-1" />
-                      Editar
-                    </Button>
-                    <Button 
-                      size="sm" 
-                      variant={activity.visible ? "secondary" : "default"}
-                      onClick={() => toggleVisibility(activity.id, activity.visible)}
-                    >
-                      {activity.visible ? (
-                        <>
+            {activitiesLoading ? (
+              <div className="text-center py-4">Carregando...</div>
+            ) : (
+              <div className="space-y-4 max-h-96 overflow-y-auto">
+                {activities.map((activity) => (
+                  <div key={activity.id} className="border rounded-lg p-4">
+                    <div className="flex justify-between items-center">
+                      <div>
+                        <h3 className="font-semibold">{activity.title}</h3>
+                        <p className="text-sm text-muted-foreground">
+                          {getDayName(activity.day_of_week)} - {formatActivityTime(activity.time_start, activity.time_end)}
+                        </p>
+                        {activity.description && (
+                          <p className="text-sm text-muted-foreground mt-1">{activity.description}</p>
+                        )}
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Badge variant={activity.visible ? "default" : "secondary"}>
+                          {activity.visible ? "Visível" : "Oculto"}
+                        </Badge>
+                        <Button 
+                          variant="outline" 
+                          size="sm"
+                          onClick={() => {
+                            setEditingActivity(activity);
+                            setIsCreatingActivity(true);
+                          }}
+                        >
+                          <Edit className="h-4 w-4 mr-1" />
+                          Editar
+                        </Button>
+                        <Button 
+                          variant="outline" 
+                          size="sm"
+                          onClick={() => updateActivity(activity.id, { visible: !activity.visible })}
+                        >
                           <EyeOff className="h-4 w-4 mr-1" />
-                          Ocultar
-                        </>
-                      ) : (
-                        <>
-                          <Eye className="h-4 w-4 mr-1" />
-                          Publicar
-                        </>
-                      )}
-                    </Button>
-                    <Button 
-                      size="sm" 
-                      variant="destructive" 
-                      onClick={() => handleDelete(activity.id)}
-                    >
-                      <Trash2 className="h-4 w-4 mr-1" />
-                      Eliminar
-                    </Button>
+                          {activity.visible ? 'Ocultar' : 'Publicar'}
+                        </Button>
+                        <Button 
+                          variant="destructive" 
+                          size="sm"
+                          onClick={() => {
+                            if (window.confirm('Tem certeza que deseja eliminar esta atividade?')) {
+                              deleteActivity(activity.id);
+                            }
+                          }}
+                        >
+                          <Trash2 className="h-4 w-4 mr-1" />
+                          Eliminar
+                        </Button>
+                      </div>
+                    </div>
                   </div>
-                </div>
-              ))}
-              {activities.length === 0 && !loading && (
-                <div className="text-center py-8 text-muted-foreground">
-                  Nenhuma atividade encontrada. Crie a primeira atividade.
-                </div>
-              )}
-            </div>
+                ))}
+              </div>
+            )}
           </CardContent>
         </Card>
       </div>
+
+      {/* Create/Edit Activity Dialog */}
+      <Dialog open={isCreatingActivity} onOpenChange={setIsCreatingActivity}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>{editingActivity ? 'Editar Atividade' : 'Nova Atividade'}</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div>
+              <Label htmlFor="activity-title">Título</Label>
+              <Input
+                id="activity-title"
+                value={newActivity.title}
+                onChange={(e) => setNewActivity({ ...newActivity, title: e.target.value })}
+                placeholder="Ex: Estudo Bíblico"
+              />
+            </div>
+            
+            <div>
+              <Label htmlFor="activity-description">Descrição</Label>
+              <Textarea
+                id="activity-description"
+                value={newActivity.description}
+                onChange={(e) => setNewActivity({ ...newActivity, description: e.target.value })}
+                placeholder="Descrição opcional"
+              />
+            </div>
+
+            <div>
+              <Label htmlFor="activity-day">Dia da Semana</Label>
+              <Select 
+                value={newActivity.day_of_week.toString()} 
+                onValueChange={(value) => setNewActivity({ ...newActivity, day_of_week: parseInt(value) })}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Selecione o dia" />
+                </SelectTrigger>
+                <SelectContent>
+                  {DAYS_OF_WEEK.map((day, index) => (
+                    <SelectItem key={index} value={index.toString()}>{day}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="activity-start">Hora de Início</Label>
+                <Input
+                  id="activity-start"
+                  type="time"
+                  value={newActivity.time_start}
+                  onChange={(e) => setNewActivity({ ...newActivity, time_start: e.target.value })}
+                />
+              </div>
+              
+              <div>
+                <Label htmlFor="activity-end">Hora de Fim</Label>
+                <Input
+                  id="activity-end"
+                  type="time"
+                  value={newActivity.time_end}
+                  onChange={(e) => setNewActivity({ ...newActivity, time_end: e.target.value })}
+                />
+              </div>
+            </div>
+
+            <div className="flex items-center space-x-2">
+              <Switch
+                id="activity-visible"
+                checked={newActivity.visible}
+                onCheckedChange={(checked) => setNewActivity({ ...newActivity, visible: checked })}
+              />
+              <Label htmlFor="activity-visible">Visível</Label>
+            </div>
+
+            <div className="flex justify-end gap-2">
+              <Button 
+                variant="outline" 
+                onClick={() => {
+                  setIsCreatingActivity(false);
+                  setEditingActivity(null);
+                }}
+              >
+                Cancelar
+              </Button>
+              <Button onClick={handleCreateActivity}>
+                {editingActivity ? 'Atualizar' : 'Criar'} Atividade
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
 
-// Export AdminUsers component
-export { AdminUsers } from './AdminUsers';
-export { AdminMessages };
+// Admin Schedules Component
+export const AdminSchedules = () => {
+  const { 
+    schedules, 
+    loading: schedulesLoading, 
+    createSchedule, 
+    updateSchedule, 
+    deleteSchedule,
+    getDayName,
+    formatScheduleTime,
+    DAYS_OF_WEEK
+  } = useSchedules();
+  const { toast } = useToast();
+  
+  const [isCreatingSchedule, setIsCreatingSchedule] = useState(false);
+  const [editingSchedule, setEditingSchedule] = useState<any>(null);
+  const [newSchedule, setNewSchedule] = useState({
+    title: '',
+    description: '',
+    day_of_week: 0,
+    time_start: '',
+    time_end: '',
+    visible: true
+  });
+
+  useEffect(() => {
+    if (editingSchedule) {
+      setNewSchedule({
+        title: editingSchedule.title,
+        description: editingSchedule.description || '',
+        day_of_week: editingSchedule.day_of_week,
+        time_start: editingSchedule.time_start,
+        time_end: editingSchedule.time_end || '',
+        visible: editingSchedule.visible
+      });
+    }
+  }, [editingSchedule]);
+
+  const handleCreateSchedule = async () => {
+    try {
+      if (editingSchedule) {
+        await updateSchedule(editingSchedule.id, {
+          ...newSchedule,
+          day_of_week: parseInt(newSchedule.day_of_week.toString()),
+        });
+      } else {
+        await createSchedule({
+          ...newSchedule,
+          day_of_week: parseInt(newSchedule.day_of_week.toString()),
+        });
+      }
+
+      setNewSchedule({
+        title: '',
+        description: '',
+        day_of_week: 0,
+        time_start: '',
+        time_end: '',
+        visible: true
+      });
+      setEditingSchedule(null);
+      setIsCreatingSchedule(false);
+    } catch (error) {
+      // Error handled in hook
+    }
+  };
+
+  return (
+    <div className="space-y-6">
+      <div>
+        <h1 className="text-3xl font-bold tracking-tight">Gestão de Horários</h1>
+        <p className="text-muted-foreground">
+          Gerencie os horários de cultos e eventos da igreja
+        </p>
+      </div>
+
+      <div className="grid lg:grid-cols-2 gap-8">
+        <Card>
+          <CardHeader>
+            <CardTitle>Novo Horário</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <Button 
+              onClick={() => {
+                setIsCreatingSchedule(true);
+                setEditingSchedule(null);
+                setNewSchedule({
+                  title: '',
+                  description: '',
+                  day_of_week: 0,
+                  time_start: '',
+                  time_end: '',
+                  visible: true
+                });
+              }}
+              className="w-full"
+            >
+              <Plus className="h-4 w-4 mr-2" />
+              Novo Horário
+            </Button>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Horários Existentes</CardTitle>
+          </CardHeader>
+          <CardContent>
+            {schedulesLoading ? (
+              <div className="text-center py-4">Carregando...</div>
+            ) : (
+              <div className="space-y-4 max-h-96 overflow-y-auto">
+                {schedules.map((schedule) => (
+                  <div key={schedule.id} className="border rounded-lg p-4">
+                    <div className="flex justify-between items-center">
+                      <div>
+                        <h3 className="font-semibold">{schedule.title}</h3>
+                        <p className="text-sm text-muted-foreground">
+                          {getDayName(schedule.day_of_week)} - {formatScheduleTime(schedule.time_start, schedule.time_end)}
+                        </p>
+                        {schedule.description && (
+                          <p className="text-sm text-muted-foreground mt-1">{schedule.description}</p>
+                        )}
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Badge variant={schedule.visible ? "default" : "secondary"}>
+                          {schedule.visible ? "Visível" : "Oculto"}
+                        </Badge>
+                        <Button 
+                          variant="outline" 
+                          size="sm"
+                          onClick={() => {
+                            setEditingSchedule(schedule);
+                            setIsCreatingSchedule(true);
+                          }}
+                        >
+                          <Edit className="h-4 w-4 mr-1" />
+                          Editar
+                        </Button>
+                        <Button 
+                          variant="outline" 
+                          size="sm"
+                          onClick={() => updateSchedule(schedule.id, { visible: !schedule.visible })}
+                        >
+                          <EyeOff className="h-4 w-4 mr-1" />
+                          {schedule.visible ? 'Ocultar' : 'Publicar'}
+                        </Button>
+                        <Button 
+                          variant="destructive" 
+                          size="sm"
+                          onClick={() => {
+                            if (window.confirm('Tem certeza que deseja eliminar este horário?')) {
+                              deleteSchedule(schedule.id);
+                            }
+                          }}
+                        >
+                          <Trash2 className="h-4 w-4 mr-1" />
+                          Eliminar
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Create/Edit Schedule Dialog */}
+      <Dialog open={isCreatingSchedule} onOpenChange={setIsCreatingSchedule}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>{editingSchedule ? 'Editar Horário' : 'Novo Horário'}</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div>
+              <Label htmlFor="schedule-title">Título</Label>
+              <Input
+                id="schedule-title"
+                value={newSchedule.title}
+                onChange={(e) => setNewSchedule({ ...newSchedule, title: e.target.value })}
+                placeholder="Ex: Culto Dominical"
+              />
+            </div>
+            
+            <div>
+              <Label htmlFor="schedule-description">Descrição</Label>
+              <Textarea
+                id="schedule-description"
+                value={newSchedule.description}
+                onChange={(e) => setNewSchedule({ ...newSchedule, description: e.target.value })}
+                placeholder="Descrição opcional"
+              />
+            </div>
+
+            <div>
+              <Label htmlFor="schedule-day">Dia da Semana</Label>
+              <Select 
+                value={newSchedule.day_of_week.toString()} 
+                onValueChange={(value) => setNewSchedule({ ...newSchedule, day_of_week: parseInt(value) })}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Selecione o dia" />
+                </SelectTrigger>
+                <SelectContent>
+                  {DAYS_OF_WEEK.map((day, index) => (
+                    <SelectItem key={index} value={index.toString()}>{day}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="schedule-start">Hora de Início</Label>
+                <Input
+                  id="schedule-start"
+                  type="time"
+                  value={newSchedule.time_start}
+                  onChange={(e) => setNewSchedule({ ...newSchedule, time_start: e.target.value })}
+                />
+              </div>
+              
+              <div>
+                <Label htmlFor="schedule-end">Hora de Fim</Label>
+                <Input
+                  id="schedule-end"
+                  type="time"
+                  value={newSchedule.time_end}
+                  onChange={(e) => setNewSchedule({ ...newSchedule, time_end: e.target.value })}
+                />
+              </div>
+            </div>
+
+            <div className="flex items-center space-x-2">
+              <Switch
+                id="schedule-visible"
+                checked={newSchedule.visible}
+                onCheckedChange={(checked) => setNewSchedule({ ...newSchedule, visible: checked })}
+              />
+              <Label htmlFor="schedule-visible">Visível</Label>
+            </div>
+
+            <div className="flex justify-end gap-2">
+              <Button 
+                variant="outline" 
+                onClick={() => {
+                  setIsCreatingSchedule(false);
+                  setEditingSchedule(null);
+                }}
+              >
+                Cancelar
+              </Button>
+              <Button onClick={handleCreateSchedule}>
+                {editingSchedule ? 'Atualizar' : 'Criar'} Horário
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+    </div>
+  );
+};

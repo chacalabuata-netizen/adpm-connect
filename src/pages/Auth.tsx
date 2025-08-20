@@ -5,6 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Church, Shield } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
@@ -16,6 +17,7 @@ const Auth: React.FC<AuthProps> = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [displayName, setDisplayName] = useState('');
+  const [memberStatus, setMemberStatus] = useState('visitante');
   const [loading, setLoading] = useState(false);
   const [isSignUp, setIsSignUp] = useState(false);
   const { toast } = useToast();
@@ -110,17 +112,32 @@ const Auth: React.FC<AuthProps> = () => {
               <TabsContent value="member">
                 <form onSubmit={(e) => handleSubmit(e, 'member')} className="space-y-4">
                   {isSignUp && (
-                    <div className="space-y-2">
-                      <Label htmlFor="member-name">Nome (opcional)</Label>
-                      <Input
-                        id="member-name"
-                        type="text"
-                        placeholder="Seu nome completo"
-                        value={displayName}
-                        onChange={(e) => setDisplayName(e.target.value)}
-                        autoComplete="name"
-                      />
-                    </div>
+                    <>
+                      <div className="space-y-2">
+                        <Label htmlFor="member-name">Nome (opcional)</Label>
+                        <Input
+                          id="member-name"
+                          type="text"
+                          placeholder="Seu nome completo"
+                          value={displayName}
+                          onChange={(e) => setDisplayName(e.target.value)}
+                          autoComplete="name"
+                        />
+                      </div>
+                      
+                      <div className="space-y-2">
+                        <Label htmlFor="member-status">Status</Label>
+                        <Select value={memberStatus} onValueChange={setMemberStatus}>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Selecione seu status" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="visitante">Visitante</SelectItem>
+                            <SelectItem value="membro_batizado">Membro Batizado</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    </>
                   )}
                   
                   <div className="space-y-2">
