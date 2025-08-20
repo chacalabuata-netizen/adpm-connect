@@ -22,6 +22,7 @@ import Schedule from "./pages/Schedule";
 import Activities from "./pages/Activities";
 import Announcements from "./pages/Announcements";
 import ContactPage from "./pages/Contact";
+import MapPage from "./pages/Map";
 import HelpPage from "./pages/Help";
 import WebsitePage from "./pages/Website";
 import CommunityPage from "./pages/Community";
@@ -106,6 +107,7 @@ const AppContent = () => {
                 <Route path="/comunidade" element={<CommunityPage />} />
                 <Route path="/download-app" element={<DownloadApp />} />
                 <Route path="/contacto" element={<ContactPage />} />
+                <Route path="/mapa" element={<MapPage />} />
                 <Route path="/ajuda" element={<HelpPage />} />
                 <Route path="/website" element={<WebsitePage />} />
                 <Route path="*" element={<NotFound />} />

@@ -2,7 +2,7 @@ import React from 'react';
 import { Outlet, Link, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
-import { Church, Clock, CalendarDays, MessageSquare, Users, Phone, HelpCircle, Globe, LogOut, Download } from 'lucide-react';
+import { Church, Clock, CalendarDays, MessageSquare, Users, Phone, HelpCircle, Globe, LogOut, Download, MapPin } from 'lucide-react';
 import { AiHelpChat } from './AiHelpChat';
 interface LayoutProps {
   userRole?: 'member' | 'admin' | null;
@@ -51,6 +51,10 @@ const Layout: React.FC<LayoutProps> = ({
     path: '/download-app',
     label: 'Download App',
     icon: Download
+  }, {
+    path: '/mapa',
+    label: 'Mapa',
+    icon: MapPin
   }, {
     path: '/contacto',
     label: 'Contacto',
@@ -146,10 +150,16 @@ const Layout: React.FC<LayoutProps> = ({
               </div>
               
               {userRole === 'member' && <div className="flex space-x-1 ml-4">
-                  {socialItems.map(item => {
-              const Icon = item.icon;
-              return;
-            })}
+                  {socialItems.map((item, index) => {
+                    const Icon = item.icon;
+                    return (
+                      <a key={index} href={item.path} target="_blank" rel="noopener noreferrer">
+                        <Button variant="ghost" size="sm">
+                          <Icon />
+                        </Button>
+                      </a>
+                    );
+                  })}
                 </div>}
             </div>
           </div>

@@ -6,6 +6,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Phone, Mail, MapPin, Clock, Send } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import ChurchMap from '@/components/ChurchMap';
 const ContactPage = () => {
   const {
     toast
@@ -105,12 +106,7 @@ const ContactPage = () => {
               <CardTitle>Como Chegar</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="bg-muted rounded-lg p-4 text-center">
-                <MapPin className="h-8 w-8 mx-auto mb-2 text-primary" />
-                <p className="text-sm text-muted-foreground">
-                  Mapa interactivo disponível em breve
-                </p>
-              </div>
+              <ChurchMap showDetails={false} />
             </CardContent>
           </Card>
         </div>
