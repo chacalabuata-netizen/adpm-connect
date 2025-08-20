@@ -47,7 +47,7 @@ export const useCommunity = () => {
         .from('community_posts')
         .select(`
           *,
-          profiles:author_id (
+          profiles!fk_community_posts_author (
             display_name,
             email
           )
@@ -277,7 +277,7 @@ export const useCommunity = () => {
         .from('community_comments')
         .select(`
           *,
-          profiles:author_id (
+          profiles!fk_community_comments_author (
             display_name,
             email
           )
