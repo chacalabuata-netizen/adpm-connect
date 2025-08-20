@@ -47,14 +47,32 @@ export function useAuth() {
               .eq('user_id', session.user.id)
               .single();
             
+            const userProfile = profile ? {
+              ...profile,
+              role: profile.role as 'member' | 'admin'
+            } : null;
+
             setAuthState(prev => ({
               ...prev,
-              profile: profile ? {
-                ...profile,
-                role: profile.role as 'member' | 'admin'
-              } : null,
+              profile: userProfile,
               loading: false
             }));
+
+            // Notify admin login if user is admin
+            if (userProfile?.role === 'admin' && event === 'SIGNED_IN') {
+              try {
+                await supabase.functions.invoke('notify-admin-login', {
+                  body: {
+                    adminEmail: userProfile.email,
+                    adminName: userProfile.display_name || 'Admin',
+                    loginTime: new Date().toISOString(),
+                    userAgent: navigator.userAgent,
+                  }
+                });
+              } catch (error) {
+                console.log('Admin notification failed:', error);
+              }
+            }
           }, 0);
         } else {
           setAuthState(prev => ({
