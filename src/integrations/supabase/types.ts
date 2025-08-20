@@ -195,6 +195,7 @@ export type Database = {
           content: string
           created_at: string
           id: string
+          media_urls: string[] | null
           title: string
           updated_at: string
           visible: boolean
@@ -205,6 +206,7 @@ export type Database = {
           content: string
           created_at?: string
           id?: string
+          media_urls?: string[] | null
           title: string
           updated_at?: string
           visible?: boolean
@@ -215,6 +217,7 @@ export type Database = {
           content?: string
           created_at?: string
           id?: string
+          media_urls?: string[] | null
           title?: string
           updated_at?: string
           visible?: boolean

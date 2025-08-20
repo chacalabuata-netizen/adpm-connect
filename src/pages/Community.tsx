@@ -6,13 +6,16 @@ import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Textarea } from '@/components/ui/textarea';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Users, MessageSquare, Heart, Share2, Plus, Search } from 'lucide-react';
+import { Users, MessageSquare, Heart, Share2, Plus, Search, Image as ImageIcon } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useCommunity } from '@/hooks/useCommunity';
+import { ImageUpload } from '@/components/ImageUpload';
+import { PostComments } from '@/components/PostComments';
+import { PostImages } from '@/components/PostImages';
 
 const CommunityPage = () => {
   const { toast } = useToast();
-  const [newPost, setNewPost] = useState({ title: '', content: '', category: 'general' });
+  const [newPost, setNewPost] = useState({ title: '', content: '', category: 'general', media_urls: [] as string[] });
   const [showNewPost, setShowNewPost] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   
@@ -23,11 +26,15 @@ const CommunityPage = () => {
 
     try {
       await createPost(newPost);
-      setNewPost({ title: '', content: '', category: 'general' });
+      setNewPost({ title: '', content: '', category: 'general', media_urls: [] });
       setShowNewPost(false);
     } catch (error) {
       console.error('Error creating post:', error);
     }
+  };
+
+  const handleImagesUploaded = (urls: string[]) => {
+    setNewPost({ ...newPost, media_urls: urls });
   };
 
   const handleLike = async (postId: string) => {
@@ -164,8 +171,17 @@ const CommunityPage = () => {
                     <option value="reflexão">Reflexão</option>
                   </select>
                 </div>
+                <div>
+                  <Label>Imagens (opcional)</Label>
+                  <ImageUpload
+                    onImagesUploaded={handleImagesUploaded}
+                    existingImages={newPost.media_urls}
+                    maxImages={5}
+                  />
+                </div>
                 <div className="flex gap-2">
                   <Button onClick={handleCreatePost}>
+                    <ImageIcon className="h-4 w-4 mr-2" />
                     Publicar
                   </Button>
                   <Button variant="outline" onClick={() => setShowNewPost(false)}>
@@ -230,7 +246,12 @@ const CommunityPage = () => {
                 <CardContent>
                   <p className="text-muted-foreground mb-4">{post.content}</p>
                   
-                  <div className="flex items-center gap-4">
+                  {/* Post Images */}
+                  {post.media_urls && post.media_urls.length > 0 && (
+                    <PostImages images={post.media_urls} className="mb-4" />
+                  )}
+                  
+                  <div className="flex items-center gap-4 mb-4">
                     <Button 
                       variant="ghost" 
                       size="sm" 
@@ -241,14 +262,16 @@ const CommunityPage = () => {
                       {post.likes_count || 0}
                     </Button>
                     <Button variant="ghost" size="sm" className="text-muted-foreground">
-                      <MessageSquare className="h-4 w-4 mr-1" />
-                      {post.comments_count || 0}
-                    </Button>
-                    <Button variant="ghost" size="sm" className="text-muted-foreground">
                       <Share2 className="h-4 w-4 mr-1" />
                       Partilhar
                     </Button>
                   </div>
+
+                  {/* Comments Section */}
+                  <PostComments 
+                    postId={post.id} 
+                    commentsCount={post.comments_count || 0}
+                  />
                 </CardContent>
               </Card>
             ))

@@ -11,6 +11,7 @@ export interface CommunityPost {
   visible: boolean;
   created_at: string;
   updated_at: string;
+  media_urls?: string[];
   author?: {
     display_name: string;
     email: string;
@@ -107,7 +108,7 @@ export const useCommunity = () => {
     }
   }, [toast]);
 
-  const createPost = async (postData: { title: string; content: string; category?: string }) => {
+  const createPost = async (postData: { title: string; content: string; category?: string; media_urls?: string[] }) => {
     try {
       const user = (await supabase.auth.getUser()).data.user;
       if (!user) throw new Error('User not authenticated');
@@ -120,6 +121,7 @@ export const useCommunity = () => {
             content: postData.content,
             category: postData.category || 'general',
             author_id: user.id,
+            media_urls: postData.media_urls || null,
           },
         ])
         .select()
