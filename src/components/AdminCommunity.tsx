@@ -14,7 +14,7 @@ import { formatDistanceToNow } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 
 export const AdminCommunity = () => {
-  const { posts, loading, refreshPosts } = useCommunity();
+  const { posts, loading, refreshPosts, updatePost, togglePostVisibility, deletePost } = useCommunity();
   const { toast } = useToast();
   const [editingPost, setEditingPost] = useState<string | null>(null);
   const [editTitle, setEditTitle] = useState('');
@@ -29,33 +29,35 @@ export const AdminCommunity = () => {
   };
 
   const handleSaveEdit = async () => {
-    // Implementation would go here
-    // For now, just show success message
-    toast({
-      title: "Sucesso",
-      description: "Post atualizado com sucesso!",
-    });
-    setEditingPost(null);
-    refreshPosts();
+    if (!editingPost) return;
+    
+    try {
+      await updatePost(editingPost, {
+        title: editTitle,
+        content: editContent,
+        category: editCategory
+      });
+      setEditingPost(null);
+    } catch (error) {
+      // Error already handled in updatePost
+    }
   };
 
-  const handleToggleVisibility = async (postId: string, currentVisibility: boolean) => {
-    // Implementation would go here
-    toast({
-      title: "Sucesso",
-      description: `Post ${currentVisibility ? 'ocultado' : 'publicado'} com sucesso!`,
-    });
-    refreshPosts();
+  const handleToggleVisibility = async (postId: string) => {
+    try {
+      await togglePostVisibility(postId);
+    } catch (error) {
+      // Error already handled in togglePostVisibility
+    }
   };
 
   const handleDeletePost = async (postId: string) => {
     if (confirm('Tem certeza que deseja eliminar este post?')) {
-      // Implementation would go here
-      toast({
-        title: "Sucesso",
-        description: "Post eliminado com sucesso!",
-      });
-      refreshPosts();
+      try {
+        await deletePost(postId);
+      } catch (error) {
+        // Error already handled in deletePost
+      }
     }
   };
 
@@ -233,7 +235,7 @@ export const AdminCommunity = () => {
                   <Button
                     variant="outline"
                     size="sm"
-                    onClick={() => handleToggleVisibility(post.id, post.visible)}
+                    onClick={() => handleToggleVisibility(post.id)}
                   >
                     {post.visible ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                   </Button>

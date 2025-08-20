@@ -275,10 +275,94 @@ export const useCommunity = () => {
     };
   }, [fetchPosts]);
 
+  const updatePost = async (postId: string, updates: { title?: string; content?: string; category?: string }) => {
+    try {
+      const { error } = await supabase
+        .from('community_posts')
+        .update(updates)
+        .eq('id', postId);
+
+      if (error) throw error;
+
+      toast({
+        title: "Sucesso",
+        description: "Post atualizado com sucesso!",
+      });
+
+      fetchPosts();
+    } catch (error) {
+      console.error('Error updating post:', error);
+      toast({
+        title: "Erro",
+        description: "Não foi possível atualizar o post",
+        variant: "destructive",
+      });
+      throw error;
+    }
+  };
+
+  const togglePostVisibility = async (postId: string) => {
+    try {
+      const post = posts.find(p => p.id === postId);
+      if (!post) throw new Error('Post not found');
+
+      const { error } = await supabase
+        .from('community_posts')
+        .update({ visible: !post.visible })
+        .eq('id', postId);
+
+      if (error) throw error;
+
+      toast({
+        title: "Sucesso",
+        description: `Post ${post.visible ? 'ocultado' : 'publicado'} com sucesso!`,
+      });
+
+      fetchPosts();
+    } catch (error) {
+      console.error('Error toggling post visibility:', error);
+      toast({
+        title: "Erro",
+        description: "Não foi possível alterar a visibilidade do post",
+        variant: "destructive",
+      });
+      throw error;
+    }
+  };
+
+  const deletePost = async (postId: string) => {
+    try {
+      const { error } = await supabase
+        .from('community_posts')
+        .delete()
+        .eq('id', postId);
+
+      if (error) throw error;
+
+      toast({
+        title: "Sucesso",
+        description: "Post eliminado com sucesso!",
+      });
+
+      fetchPosts();
+    } catch (error) {
+      console.error('Error deleting post:', error);
+      toast({
+        title: "Erro",
+        description: "Não foi possível eliminar o post",
+        variant: "destructive",
+      });
+      throw error;
+    }
+  };
+
   return {
     posts,
     loading,
     createPost,
+    updatePost,
+    togglePostVisibility,
+    deletePost,
     toggleLike,
     addComment,
     getPostComments,
