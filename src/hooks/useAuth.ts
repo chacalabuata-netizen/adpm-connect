@@ -145,19 +145,32 @@ export function useAuth() {
   };
 
   const signOut = async () => {
-    const { error } = await supabase.auth.signOut();
-    
-    if (!error) {
-      // Reset auth state immediately
+    try {
+      const { error } = await supabase.auth.signOut();
+      
+      // Reset auth state immediately regardless of error
       setAuthState({
         user: null,
         session: null,
         profile: null,
         loading: false
       });
+      
+      // Force page reload to clear any cached state
+      window.location.href = '/';
+      
+      return { error };
+    } catch (error) {
+      // Reset state even on error
+      setAuthState({
+        user: null,
+        session: null,
+        profile: null,
+        loading: false
+      });
+      window.location.href = '/';
+      return { error };
     }
-    
-    return { error };
   };
 
   return {

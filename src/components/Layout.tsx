@@ -3,6 +3,7 @@ import { Outlet, Link, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import { Church, Clock, CalendarDays, MessageSquare, Users, Phone, HelpCircle, Globe, LogOut, Download } from 'lucide-react';
+import { AiHelpChat } from './AiHelpChat';
 interface LayoutProps {
   userRole?: 'member' | 'admin' | null;
   onLogout?: () => Promise<void>;
@@ -171,6 +172,9 @@ const Layout: React.FC<LayoutProps> = ({
       <main className="flex-1">
         {children}
       </main>
+
+      {/* AI Help Chat - Only show for authenticated users */}
+      {userRole && <AiHelpChat />}
 
       {/* Footer */}
       <footer className="bg-primary text-primary-foreground py-8 mt-16">

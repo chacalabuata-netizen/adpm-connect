@@ -9,9 +9,10 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
-import { Edit, Eye, EyeOff, Trash2, MessageSquare, Heart, Users } from 'lucide-react';
+import { Edit, Eye, EyeOff, Trash2, MessageSquare, Heart, Users, Upload } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
+import { ContentEditor } from './ContentEditor';
 
 export const AdminCommunity = () => {
   const { posts, loading, refreshPosts, updatePost, togglePostVisibility, deletePost } = useCommunity();
@@ -97,9 +98,25 @@ export const AdminCommunity = () => {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h1 className="text-3xl font-bold">Gestão da Comunidade</h1>
-        <Button onClick={refreshPosts} variant="outline">
-          Atualizar
-        </Button>
+        <div className="flex gap-2">
+          <Dialog>
+            <DialogTrigger asChild>
+              <Button variant="default">
+                <Upload className="h-4 w-4 mr-2" />
+                Editar Conteúdo
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="max-w-4xl">
+              <DialogHeader>
+                <DialogTitle>Editar Conteúdo da Comunidade</DialogTitle>
+              </DialogHeader>
+              <ContentEditor />
+            </DialogContent>
+          </Dialog>
+          <Button onClick={refreshPosts} variant="outline">
+            Atualizar
+          </Button>
+        </div>
       </div>
 
       {/* Statistics */}
