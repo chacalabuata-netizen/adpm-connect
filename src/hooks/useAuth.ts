@@ -8,6 +8,7 @@ export interface UserProfile {
   email: string;
   role: 'member' | 'admin';
   display_name?: string;
+  member_status?: string;
   created_at: string;
   updated_at: string;
 }
@@ -98,7 +99,7 @@ export function useAuth() {
     return () => subscription.unsubscribe();
   }, []);
 
-  const signUp = async (email: string, password: string, displayName?: string) => {
+  const signUp = async (email: string, password: string, displayName?: string, memberStatus: string = 'visitante') => {
     const redirectUrl = `${window.location.origin}/`;
     
     const { data, error } = await supabase.auth.signUp({
@@ -107,7 +108,8 @@ export function useAuth() {
       options: {
         emailRedirectTo: redirectUrl,
         data: {
-          display_name: displayName
+          display_name: displayName,
+          member_status: memberStatus
         }
       }
     });

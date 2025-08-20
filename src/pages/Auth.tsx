@@ -39,7 +39,7 @@ const Auth: React.FC<AuthProps> = () => {
     
     try {
       if (isSignUp) {
-        const { error } = await signUp(email.trim(), password, displayName.trim());
+        const { error } = await signUp(email.trim(), password, displayName.trim(), memberStatus);
         if (error) throw error;
         
         toast({
