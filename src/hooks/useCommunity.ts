@@ -76,18 +76,31 @@ export const useCommunity = () => {
           // Check if user liked this post
           let userLiked = false;
           if (user) {
-            const { data: likeData } = await supabase
-              .from('community_likes')
+            // Get user's profile id
+            const { data: profile } = await supabase
+              .from('profiles')
               .select('id')
-              .eq('post_id', post.id)
               .eq('user_id', user.id)
               .single();
-            userLiked = !!likeData;
+              
+            if (profile) {
+              const { data: likeData } = await supabase
+                .from('community_likes')
+                .select('id')
+                .eq('post_id', post.id)
+                .eq('user_id', profile.id)
+                .single();
+              userLiked = !!likeData;
+            }
           }
 
           return {
             ...post,
-            author: post.profiles,
+            author: Array.isArray(post.profiles) && post.profiles.length > 0 
+              ? post.profiles[0] 
+              : post.profiles && typeof post.profiles === 'object' 
+              ? post.profiles 
+              : { display_name: 'Utilizador Desconhecido', email: '' },
             comments_count: commentsCount || 0,
             likes_count: likesCount || 0,
             user_liked: userLiked,
@@ -113,6 +126,17 @@ export const useCommunity = () => {
       const user = (await supabase.auth.getUser()).data.user;
       if (!user) throw new Error('User not authenticated');
 
+      // Get the user's profile to use profile.id as author_id
+      const { data: profile, error: profileError } = await supabase
+        .from('profiles')
+        .select('id, display_name')
+        .eq('user_id', user.id)
+        .single();
+
+      if (profileError || !profile) {
+        throw new Error('Profile not found. Please complete your profile first.');
+      }
+
       const { data, error } = await supabase
         .from('community_posts')
         .insert([
@@ -120,7 +144,7 @@ export const useCommunity = () => {
             title: postData.title,
             content: postData.content,
             category: postData.category || 'general',
-            author_id: user.id,
+            author_id: profile.id,
             media_urls: postData.media_urls || null,
           },
         ])
@@ -152,12 +176,23 @@ export const useCommunity = () => {
       const user = (await supabase.auth.getUser()).data.user;
       if (!user) throw new Error('User not authenticated');
 
+      // Get user's profile id
+      const { data: profile, error: profileError } = await supabase
+        .from('profiles')
+        .select('id')
+        .eq('user_id', user.id)
+        .single();
+
+      if (profileError || !profile) {
+        throw new Error('Profile not found');
+      }
+
       // Check if user already liked this post
       const { data: existingLike } = await supabase
         .from('community_likes')
         .select('id')
         .eq('post_id', postId)
-        .eq('user_id', user.id)
+        .eq('user_id', profile.id)
         .single();
 
       if (existingLike) {
@@ -172,7 +207,7 @@ export const useCommunity = () => {
         // Add like
         const { error } = await supabase
           .from('community_likes')
-          .insert([{ post_id: postId, user_id: user.id }]);
+          .insert([{ post_id: postId, user_id: profile.id }]);
 
         if (error) throw error;
       }
@@ -193,12 +228,23 @@ export const useCommunity = () => {
       const user = (await supabase.auth.getUser()).data.user;
       if (!user) throw new Error('User not authenticated');
 
+      // Get user's profile id
+      const { data: profile, error: profileError } = await supabase
+        .from('profiles')
+        .select('id')
+        .eq('user_id', user.id)
+        .single();
+
+      if (profileError || !profile) {
+        throw new Error('Profile not found');
+      }
+
       const { data, error } = await supabase
         .from('community_comments')
         .insert([
           {
             post_id: postId,
-            author_id: user.id,
+            author_id: profile.id,
             content,
           },
         ])
