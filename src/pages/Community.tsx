@@ -230,12 +230,20 @@ const CommunityPage = () => {
                   <div className="flex items-start justify-between">
                     <div className="flex items-center gap-3">
                       <Avatar>
-                        <AvatarFallback>{post.author?.display_name?.charAt(0) || 'U'}</AvatarFallback>
+                         <AvatarFallback>
+                           {(post.author?.display_name || 
+                             post.author?.email?.split('@')[0] || 
+                             'U')?.charAt(0)?.toUpperCase()}
+                         </AvatarFallback>
                       </Avatar>
-                      <div>
-                        <h3 className="font-semibold">{post.author?.display_name || 'Utilizador'}</h3>
-                        <p className="text-sm text-muted-foreground">{formatDate(post.created_at)}</p>
-                      </div>
+                       <div>
+                         <h3 className="font-semibold">
+                           {post.author?.display_name || 
+                            post.author?.email?.split('@')[0] || 
+                            'Utilizador Desconhecido'}
+                         </h3>
+                         <p className="text-sm text-muted-foreground">{formatDate(post.created_at)}</p>
+                       </div>
                     </div>
                     <Badge className={getCategoryColor(post.category)}>
                       {post.category === 'general' ? 'Geral' : post.category}

@@ -139,9 +139,11 @@ export const PostComments: React.FC<PostCommentsProps> = ({ postId, commentsCoun
                       </Avatar>
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 mb-1">
-                          <span className="text-sm font-medium">
-                            {comment.author?.display_name || 'Utilizador'}
-                          </span>
+                           <span className="text-sm font-medium">
+                             {comment.author?.display_name || 
+                              comment.author?.email?.split('@')[0] || 
+                              'Utilizador Desconhecido'}
+                           </span>
                           <span className="text-xs text-muted-foreground">
                             {formatDate(comment.created_at)}
                           </span>
