@@ -123,6 +123,42 @@ export type Database = {
           },
         ]
       }
+      community_content: {
+        Row: {
+          content: string | null
+          created_at: string
+          created_by: string
+          description: string | null
+          id: string
+          media_urls: string[] | null
+          status: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          content?: string | null
+          created_at?: string
+          created_by: string
+          description?: string | null
+          id?: string
+          media_urls?: string[] | null
+          status?: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          content?: string | null
+          created_at?: string
+          created_by?: string
+          description?: string | null
+          id?: string
+          media_urls?: string[] | null
+          status?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       community_likes: {
         Row: {
           created_at: string

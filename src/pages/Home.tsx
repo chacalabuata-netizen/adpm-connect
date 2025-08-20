@@ -57,10 +57,10 @@ const Home = () => {
               <img src="/lovable-uploads/b58bfd74-9a2c-42f9-b3c8-7cf171dbafa5.png" alt="ADPM Casa de Zadoque Logo" className="h-16 w-16 object-contain mb-4" />
             </div>
             <h1 className="text-5xl md:text-6xl font-bold text-primary-foreground mb-6">
-              Bem-vindos à ADPM
+              ADPM Montijo-Portugal
             </h1>
             <h2 className="text-3xl md:text-4xl font-semibold text-primary-foreground/90 mb-8">
-              Casa de Zadoque - Montijo
+              Casa de Zadoque
             </h2>
             <p className="text-xl text-primary-foreground/80 mb-12 leading-relaxed">
               Uma comunidade de fé que vive e compartilha o amor de Jesus Cristo. 
