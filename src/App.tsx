@@ -72,36 +72,45 @@ const AppContent = () => {
   }
 
   return (
-    <>
+    <Routes>
       {!user ? (
-        <Auth />
+        <Route path="*" element={<Auth />} />
       ) : isAdmin ? (
-        <Layout userRole="admin" onLogout={handleSignOut}>
-          <Routes>
-            <Route path="/admin" element={<AdminDashboard onNavigate={handleAdminNavigate} />} />
-            <Route path="/admin/anuncios" element={<AdminAnnouncements />} />
-            <Route path="/admin/horarios" element={<AdminSchedules />} />
-            <Route path="/admin/atividades" element={<AdminActivities />} />
-            <Route path="/admin/utilizadores" element={<AdminUsers />} />
-            <Route path="*" element={<Navigate to="/admin" replace />} />
-          </Routes>
-        </Layout>
+        <>
+          <Route path="/admin/*" element={
+            <Layout userRole="admin" onLogout={handleSignOut}>
+              <Routes>
+                <Route path="/" element={<AdminDashboard onNavigate={handleAdminNavigate} />} />
+                <Route path="/anuncios" element={<AdminAnnouncements />} />
+                <Route path="/horarios" element={<AdminSchedules />} />
+                <Route path="/atividades" element={<AdminActivities />} />
+                <Route path="/utilizadores" element={<AdminUsers />} />
+                <Route path="*" element={<Navigate to="/admin" replace />} />
+              </Routes>
+            </Layout>
+          } />
+          <Route path="*" element={<Navigate to="/admin" replace />} />
+        </>
       ) : (
-        <Layout userRole="member" onLogout={handleSignOut}>
-          <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/horario" element={<Schedule />} />
-            <Route path="/atividades" element={<Activities />} />
-            <Route path="/anuncios" element={<Announcements />} />
-            <Route path="/comunidade" element={<CommunityPage />} />
-            <Route path="/contacto" element={<ContactPage />} />
-            <Route path="/ajuda" element={<HelpPage />} />
-            <Route path="/website" element={<WebsitePage />} />
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </Layout>
+        <>
+          <Route path="/*" element={
+            <Layout userRole="member" onLogout={handleSignOut}>
+              <Routes>
+                <Route path="/" element={<Home />} />
+                <Route path="/horario" element={<Schedule />} />
+                <Route path="/atividades" element={<Activities />} />
+                <Route path="/anuncios" element={<Announcements />} />
+                <Route path="/comunidade" element={<CommunityPage />} />
+                <Route path="/contacto" element={<ContactPage />} />
+                <Route path="/ajuda" element={<HelpPage />} />
+                <Route path="/website" element={<WebsitePage />} />
+                <Route path="*" element={<NotFound />} />
+              </Routes>
+            </Layout>
+          } />
+        </>
       )}
-    </>
+    </Routes>
   );
 };
 
