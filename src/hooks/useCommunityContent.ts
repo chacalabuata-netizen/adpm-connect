@@ -103,17 +103,39 @@ export const useCommunityContent = () => {
       const content = contents.find(c => c.id === contentId);
       if (!content) throw new Error('Conteúdo não encontrado');
 
-      // Create community post
+      // Get the profile ID for the user
+      const { data: profile, error: profileError } = await supabase
+        .from('profiles')
+        .select('id')
+        .eq('user_id', userId)
+        .single();
+
+      if (profileError) {
+        console.error('Erro ao buscar perfil:', profileError);
+        toast.error('Erro: Perfil do utilizador não encontrado');
+        throw profileError;
+      }
+
+      if (!profile) {
+        toast.error('Erro: Perfil do utilizador não encontrado');
+        throw new Error('Profile not found');
+      }
+
+      // Create community post using profile ID
       const { error: postError } = await supabase
         .from('community_posts')
         .insert({
           title: content.title,
           content: `${content.description || ''}\n\n${content.content || ''}`,
           category: 'anuncio',
-          author_id: userId
+          author_id: profile.id,
+          media_urls: content.media_urls
         });
 
-      if (postError) throw postError;
+      if (postError) {
+        console.error('Erro ao criar post:', postError);
+        throw postError;
+      }
 
       // Update content status
       await updateContent(contentId, { status: 'published' });

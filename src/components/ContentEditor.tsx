@@ -176,6 +176,7 @@ export const ContentEditor = () => {
 
   const publishToCommunity = async (contentId: string) => {
     try {
+      // First get the content data
       const { data: contentData, error: fetchError } = await supabase
         .from('community_content')
         .select('*')
@@ -184,17 +185,39 @@ export const ContentEditor = () => {
 
       if (fetchError) throw fetchError;
 
-      // Create community post
+      // Get the profile ID for the current user
+      const { data: profile, error: profileError } = await supabase
+        .from('profiles')
+        .select('id')
+        .eq('user_id', user?.id)
+        .single();
+
+      if (profileError) {
+        console.error('Erro ao buscar perfil:', profileError);
+        toast.error("Erro: Perfil do utilizador não encontrado");
+        return;
+      }
+
+      if (!profile) {
+        toast.error("Erro: Perfil do utilizador não encontrado");
+        return;
+      }
+
+      // Create community post using profile ID
       const { error: postError } = await supabase
         .from('community_posts')
         .insert({
           title: contentData.title,
           content: `${contentData.description || ''}\n\n${contentData.content || ''}`,
           category: 'anuncio',
-          author_id: user?.id
+          author_id: profile.id,
+          media_urls: contentData.media_urls
         });
 
-      if (postError) throw postError;
+      if (postError) {
+        console.error('Erro ao criar post:', postError);
+        throw postError;
+      }
 
       // Update content status
       const { error: updateError } = await supabase
