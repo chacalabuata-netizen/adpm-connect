@@ -2,7 +2,7 @@ import React from 'react';
 import { Outlet, Link, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
-import { Church, Clock, CalendarDays, MessageSquare, Users, Phone, HelpCircle, Globe, LogOut } from 'lucide-react';
+import { Church, Clock, CalendarDays, MessageSquare, Users, Phone, HelpCircle, Globe, LogOut, Download } from 'lucide-react';
 interface LayoutProps {
   userRole?: 'member' | 'admin' | null;
   onLogout?: () => Promise<void>;
@@ -47,6 +47,10 @@ const Layout: React.FC<LayoutProps> = ({
     label: 'Comunidade',
     icon: Users
   }, {
+    path: '/download-app',
+    label: 'Download App',
+    icon: Download
+  }, {
     path: '/contacto',
     label: 'Contacto',
     icon: Phone
@@ -86,6 +90,10 @@ const Layout: React.FC<LayoutProps> = ({
     path: '/admin/atividades',
     label: 'Atividades',
     icon: CalendarDays
+  }, {
+    path: '/admin/comunidade',
+    label: 'Comunidade',
+    icon: Users
   }, {
     path: '/admin/utilizadores',
     label: 'Utilizadores',

@@ -25,11 +25,13 @@ import ContactPage from "./pages/Contact";
 import HelpPage from "./pages/Help";
 import WebsitePage from "./pages/Website";
 import CommunityPage from "./pages/Community";
+import DownloadApp from "./pages/DownloadApp";
 import NotFound from "./pages/NotFound";
 
 // Admin Components
 import { AdminDashboard, AdminAnnouncements, AdminSchedules, AdminActivities } from "./components/AdminComponents";
 import { AdminUsers } from "./components/AdminUsers";
+import { AdminCommunity } from "./components/AdminCommunity";
 
 // Hooks
 import { useAuth } from "./hooks/useAuth";
@@ -84,6 +86,7 @@ const AppContent = () => {
                 <Route path="/anuncios" element={<AdminAnnouncements />} />
                 <Route path="/horarios" element={<AdminSchedules />} />
                 <Route path="/atividades" element={<AdminActivities />} />
+                <Route path="/comunidade" element={<AdminCommunity />} />
                 <Route path="/utilizadores" element={<AdminUsers />} />
                 <Route path="*" element={<Navigate to="/admin" replace />} />
               </Routes>
@@ -101,6 +104,7 @@ const AppContent = () => {
                 <Route path="/atividades" element={<Activities />} />
                 <Route path="/anuncios" element={<Announcements />} />
                 <Route path="/comunidade" element={<CommunityPage />} />
+                <Route path="/download-app" element={<DownloadApp />} />
                 <Route path="/contacto" element={<ContactPage />} />
                 <Route path="/ajuda" element={<HelpPage />} />
                 <Route path="/website" element={<WebsitePage />} />

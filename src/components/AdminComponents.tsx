@@ -29,6 +29,7 @@ import { useSchedules } from '@/hooks/useSchedules';
 import { useStats } from '@/hooks/useStats';
 import { useToast } from '@/hooks/use-toast';
 import { AdminMessages } from './AdminMessages';
+import { AdminCommunity } from './AdminCommunity';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 // Admin Dashboard Component
@@ -183,6 +184,14 @@ export const AdminDashboard = ({ onNavigate }: { onNavigate: (section: string) =
           >
             <Activity className="h-6 w-6 mb-2" />
             Gerir Atividades
+          </Button>
+          <Button 
+            variant="outline" 
+            className="h-20 flex-col"
+            onClick={() => onNavigate('community')}
+          >
+            <MessageSquare className="h-6 w-6 mb-2" />
+            Gerir Comunidade
           </Button>
           <Button 
             variant="outline" 
