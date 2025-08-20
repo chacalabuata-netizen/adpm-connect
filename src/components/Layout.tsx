@@ -148,20 +148,7 @@ const Layout: React.FC<LayoutProps> = ({
               {userRole === 'member' && <div className="flex space-x-1 ml-4">
                   {socialItems.map(item => {
               const Icon = item.icon;
-              return (
-                <a 
-                  key={item.path} 
-                  href={item.path} 
-                  target="_blank" 
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center"
-                >
-                  <Button variant="ghost" size="sm" className="whitespace-nowrap">
-                    <Icon />
-                    <span className="ml-2">{item.label}</span>
-                  </Button>
-                </a>
-              );
+              return;
             })}
                 </div>}
             </div>
