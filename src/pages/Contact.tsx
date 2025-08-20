@@ -6,37 +6,38 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Phone, Mail, MapPin, Clock, Send } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-
 const ContactPage = () => {
-  const { toast } = useToast();
+  const {
+    toast
+  } = useToast();
   const [formData, setFormData] = useState({
     name: '',
     email: '',
     subject: '',
     message: ''
   });
-
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     // Simulate form submission
     toast({
       title: "Mensagem enviada",
-      description: "Entraremos em contacto consigo brevemente.",
+      description: "Entraremos em contacto consigo brevemente."
     });
-    
-    setFormData({ name: '', email: '', subject: '', message: '' });
+    setFormData({
+      name: '',
+      email: '',
+      subject: '',
+      message: ''
+    });
   };
-
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setFormData({
       ...formData,
       [e.target.name]: e.target.value
     });
   };
-
-  return (
-    <div className="container mx-auto px-4 py-8">
+  return <div className="container mx-auto px-4 py-8">
       <div className="text-center mb-12">
         <h1 className="text-4xl font-bold mb-4 text-foreground">Entre em Contacto</h1>
         <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
@@ -59,7 +60,7 @@ const ContactPage = () => {
                 <Phone className="h-5 w-5 text-primary mt-1" />
                 <div>
                   <h3 className="font-semibold">Telefone</h3>
-                  <p className="text-muted-foreground">+351 212 345 678</p>
+                  <p className="text-muted-foreground">+351 962 130 308</p>
                   <p className="text-sm text-muted-foreground">Segunda a Sexta, 9h-18h</p>
                 </div>
               </div>
@@ -130,52 +131,22 @@ const ContactPage = () => {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <Label htmlFor="name">Nome *</Label>
-                  <Input
-                    id="name"
-                    name="name"
-                    value={formData.name}
-                    onChange={handleChange}
-                    placeholder="O seu nome"
-                    required
-                  />
+                  <Input id="name" name="name" value={formData.name} onChange={handleChange} placeholder="O seu nome" required />
                 </div>
                 <div>
                   <Label htmlFor="email">Email *</Label>
-                  <Input
-                    id="email"
-                    name="email"
-                    type="email"
-                    value={formData.email}
-                    onChange={handleChange}
-                    placeholder="seu.email@exemplo.com"
-                    required
-                  />
+                  <Input id="email" name="email" type="email" value={formData.email} onChange={handleChange} placeholder="seu.email@exemplo.com" required />
                 </div>
               </div>
 
               <div>
                 <Label htmlFor="subject">Assunto *</Label>
-                <Input
-                  id="subject"
-                  name="subject"
-                  value={formData.subject}
-                  onChange={handleChange}
-                  placeholder="Assunto da sua mensagem"
-                  required
-                />
+                <Input id="subject" name="subject" value={formData.subject} onChange={handleChange} placeholder="Assunto da sua mensagem" required />
               </div>
 
               <div>
                 <Label htmlFor="message">Mensagem *</Label>
-                <Textarea
-                  id="message"
-                  name="message"
-                  value={formData.message}
-                  onChange={handleChange}
-                  placeholder="Escreva aqui a sua mensagem..."
-                  rows={6}
-                  required
-                />
+                <Textarea id="message" name="message" value={formData.message} onChange={handleChange} placeholder="Escreva aqui a sua mensagem..." rows={6} required />
               </div>
 
               <Button type="submit" className="w-full" size="lg">
@@ -186,8 +157,6 @@ const ContactPage = () => {
           </CardContent>
         </Card>
       </div>
-    </div>
-  );
+    </div>;
 };
-
 export default ContactPage;
