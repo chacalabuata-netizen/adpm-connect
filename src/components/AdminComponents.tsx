@@ -6,9 +6,10 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Separator } from '@/components/ui/separator';
 import { 
   MessageSquare, 
+  TrendingUp,
   Clock, 
   CalendarDays, 
   Users, 
@@ -17,43 +18,132 @@ import {
   Trash2,
   Eye,
   EyeOff,
-  UserCheck,
-  UserX,
-  Settings
+  Activity
 } from 'lucide-react';
 import { useAnnouncements } from '@/hooks/useAnnouncements';
-import { useSchedules } from '@/hooks/useSchedules';
-import { useActivities } from '@/hooks/useActivities';
+import { useStats } from '@/hooks/useStats';
 import { useToast } from '@/hooks/use-toast';
+import { AdminMessages } from './AdminMessages';
 
-// Admin Dashboard Main Component
-export const AdminDashboard = () => {
-  const stats = [
-    { title: 'Anúncios Ativos', value: '12', icon: MessageSquare, color: 'text-blue-600' },
-    { title: 'Horários Configurados', value: '8', icon: Clock, color: 'text-green-600' },
-    { title: 'Atividades Programadas', value: '15', icon: CalendarDays, color: 'text-purple-600' },
-    { title: 'Utilizadores Registados', value: '156', icon: Users, color: 'text-orange-600' },
-  ];
+// Admin Dashboard Component
+export const AdminDashboard = ({ onNavigate }: { onNavigate: (section: string) => void }) => {
+  const { stats, loading: statsLoading } = useStats();
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <h1 className="text-4xl font-bold text-center mb-8">Dashboard Administrativo</h1>
-      
-      {/* Stats Grid */}
-      <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-        {stats.map((stat, index) => (
-          <Card key={index}>
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-muted-foreground">{stat.title}</p>
-                  <p className="text-2xl font-bold">{stat.value}</p>
-                </div>
-                <stat.icon className={`h-8 w-8 ${stat.color}`} />
-              </div>
-            </CardContent>
-          </Card>
-        ))}
+    <div className="space-y-6">
+      <div>
+        <h1 className="text-3xl font-bold tracking-tight">Painel Administrativo</h1>
+        <p className="text-muted-foreground">
+          Gerencie todos os aspectos da aplicação ADPM Connect
+        </p>
+      </div>
+
+      {/* Stats Overview */}
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+        <Card className="hover:shadow-md transition-shadow">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">
+              Anúncios Ativos
+            </CardTitle>
+            <MessageSquare className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">
+              {statsLoading ? "..." : stats.totalAnnouncements}
+            </div>
+            <p className="text-xs text-muted-foreground">
+              Publicados e visíveis
+            </p>
+          </CardContent>
+        </Card>
+        
+        <Card className="hover:shadow-md transition-shadow">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">
+              Horários Ativos
+            </CardTitle>
+            <Clock className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">
+              {statsLoading ? "..." : stats.activeSchedules}
+            </div>
+            <p className="text-xs text-muted-foreground">
+              Cultos programados
+            </p>
+          </CardContent>
+        </Card>
+        
+        <Card className="hover:shadow-md transition-shadow">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">
+              Atividades Ativas
+            </CardTitle>
+            <Activity className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">
+              {statsLoading ? "..." : stats.totalActivities}
+            </div>
+            <p className="text-xs text-muted-foreground">
+              Eventos programados
+            </p>
+          </CardContent>
+        </Card>
+        
+        <Card className="hover:shadow-md transition-shadow">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">
+              Membros Registados
+            </CardTitle>
+            <Users className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">
+              {statsLoading ? "..." : stats.totalUsers}
+            </div>
+            <p className="text-xs text-muted-foreground">
+              Utilizadores ativos
+            </p>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Additional Stats */}
+      <div className="grid gap-4 md:grid-cols-2">
+        <Card className="hover:shadow-md transition-shadow">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">
+              Posts da Comunidade
+            </CardTitle>
+            <TrendingUp className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">
+              {statsLoading ? "..." : stats.totalPosts}
+            </div>
+            <p className="text-xs text-muted-foreground">
+              Partilhas da comunidade
+            </p>
+          </CardContent>
+        </Card>
+        
+        <Card className="hover:shadow-md transition-shadow">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">
+              Mensagens por Ler
+            </CardTitle>
+            <MessageSquare className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-primary">
+              {statsLoading ? "..." : stats.unreadMessages}
+            </div>
+            <p className="text-xs text-muted-foreground">
+              Contactos pendentes
+            </p>
+          </CardContent>
+        </Card>
       </div>
 
       {/* Quick Actions */}
@@ -64,27 +154,60 @@ export const AdminDashboard = () => {
             Acesso rápido às funcionalidades mais utilizadas
           </CardDescription>
         </CardHeader>
-        <CardContent>
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
-            <Button className="h-24 flex-col gap-2" variant="outline">
-              <MessageSquare className="h-6 w-6" />
-              <span>Novo Anúncio</span>
-            </Button>
-            <Button className="h-24 flex-col gap-2" variant="outline">
-              <Clock className="h-6 w-6" />
-              <span>Gerir Horários</span>
-            </Button>
-            <Button className="h-24 flex-col gap-2" variant="outline">
-              <CalendarDays className="h-6 w-6" />
-              <span>Nova Atividade</span>
-            </Button>
-            <Button className="h-24 flex-col gap-2" variant="outline">
-              <Users className="h-6 w-6" />
-              <span>Gerir Utilizadores</span>
-            </Button>
-          </div>
+        <CardContent className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+          <Button 
+            className="h-20 flex-col"
+            onClick={() => onNavigate('announcements')}
+          >
+            <Plus className="h-6 w-6 mb-2" />
+            Criar Anúncio
+          </Button>
+          <Button 
+            variant="outline" 
+            className="h-20 flex-col"
+            onClick={() => onNavigate('schedules')}
+          >
+            <Clock className="h-6 w-6 mb-2" />
+            Gerir Horários
+          </Button>
+          <Button 
+            variant="outline" 
+            className="h-20 flex-col"
+            onClick={() => onNavigate('activities')}
+          >
+            <Activity className="h-6 w-6 mb-2" />
+            Gerir Atividades
+          </Button>
+          <Button 
+            variant="outline" 
+            className="h-20 flex-col"
+            onClick={() => onNavigate('users')}
+          >
+            <Users className="h-6 w-6 mb-2" />
+            Ver Utilizadores
+          </Button>
         </CardContent>
       </Card>
+
+      {/* Messages Preview */}
+      {stats.unreadMessages > 0 && (
+        <Card className="border-primary">
+          <CardHeader>
+            <CardTitle className="text-primary">Mensagens Pendentes</CardTitle>
+            <CardDescription>
+              Tem {stats.unreadMessages} mensagem{stats.unreadMessages > 1 ? 's' : ''} por responder
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Button 
+              onClick={() => onNavigate('messages')}
+              className="w-full"
+            >
+              Ver Mensagens
+            </Button>
+          </CardContent>
+        </Card>
+      )}
     </div>
   );
 };
@@ -234,16 +357,22 @@ export const AdminAnnouncements = () => {
 
 // Admin Schedules Component
 export const AdminSchedules = () => {
-  const { schedules } = useSchedules();
-  const { toast } = useToast();
-  
   return (
-    <div className="container mx-auto px-4 py-8">
-      <h1 className="text-4xl font-bold text-center mb-8">Gestão de Horários</h1>
+    <div className="space-y-6">
+      <div>
+        <h1 className="text-3xl font-bold tracking-tight">Gestão de Horários</h1>
+        <p className="text-muted-foreground">
+          Gerencie os horários de cultos e eventos da igreja
+        </p>
+      </div>
+      
       <Card>
         <CardContent className="p-6 text-center">
           <Clock className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
-          <p className="text-muted-foreground">Funcionalidade em desenvolvimento</p>
+          <h3 className="text-lg font-semibold mb-2">Funcionalidade em Desenvolvimento</h3>
+          <p className="text-muted-foreground">
+            O sistema de gestão de horários estará disponível em breve.
+          </p>
         </CardContent>
       </Card>
     </div>
@@ -252,32 +381,28 @@ export const AdminSchedules = () => {
 
 // Admin Activities Component
 export const AdminActivities = () => {
-  const { activities } = useActivities();
-  
   return (
-    <div className="container mx-auto px-4 py-8">
-      <h1 className="text-4xl font-bold text-center mb-8">Gestão de Atividades</h1>
+    <div className="space-y-6">
+      <div>
+        <h1 className="text-3xl font-bold tracking-tight">Gestão de Atividades</h1>
+        <p className="text-muted-foreground">
+          Gerencie as atividades e eventos especiais da igreja
+        </p>
+      </div>
+      
       <Card>
         <CardContent className="p-6 text-center">
           <CalendarDays className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
-          <p className="text-muted-foreground">Funcionalidade em desenvolvimento</p>
+          <h3 className="text-lg font-semibold mb-2">Funcionalidade em Desenvolvimento</h3>
+          <p className="text-muted-foreground">
+            O sistema de gestão de atividades estará disponível em breve.
+          </p>
         </CardContent>
       </Card>
     </div>
   );
 };
 
-// Admin Users Component
-export const AdminUsers = () => {
-  return (
-    <div className="container mx-auto px-4 py-8">
-      <h1 className="text-4xl font-bold text-center mb-8">Gestão de Utilizadores</h1>
-      <Card>
-        <CardContent className="p-6 text-center">
-          <Users className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
-          <p className="text-muted-foreground">Funcionalidade em desenvolvimento</p>
-        </CardContent>
-      </Card>
-    </div>
-  );
-};
+// Export AdminUsers component
+export { AdminUsers } from './AdminUsers';
+export { AdminMessages };
