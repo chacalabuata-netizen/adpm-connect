@@ -4,7 +4,8 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Users, UserCheck, UserX, Search, Mail, Calendar, Settings } from 'lucide-react';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Users, UserCheck, UserX, Search, Mail, Calendar, Settings, Eye, User } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { formatDistanceToNow } from 'date-fns';
@@ -25,6 +26,8 @@ export const AdminUsers = () => {
   const [users, setUsers] = useState<UserProfile[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
+  const [selectedUser, setSelectedUser] = useState<UserProfile | null>(null);
+  const [isViewDialogOpen, setIsViewDialogOpen] = useState(false);
   const { toast } = useToast();
 
   const fetchUsers = async () => {
@@ -146,6 +149,11 @@ export const AdminUsers = () => {
         variant: "destructive",
       });
     }
+  };
+
+  const handleViewUser = (user: UserProfile) => {
+    setSelectedUser(user);
+    setIsViewDialogOpen(true);
   };
 
   useEffect(() => {
@@ -324,6 +332,16 @@ export const AdminUsers = () => {
                         </SelectContent>
                       </Select>
                     </div>
+                    
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handleViewUser(user)}
+                      className="min-w-[100px]"
+                    >
+                      <Eye className="h-4 w-4 mr-2" />
+                      Ver Detalhes
+                    </Button>
                   </div>
                 </div>
               ))}
@@ -331,6 +349,93 @@ export const AdminUsers = () => {
           )}
         </CardContent>
       </Card>
+
+      {/* User Details Dialog */}
+      <Dialog open={isViewDialogOpen} onOpenChange={setIsViewDialogOpen}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <User className="h-5 w-5" />
+              Detalhes do Utilizador
+            </DialogTitle>
+            <DialogDescription>
+              Informações detalhadas do utilizador selecionado
+            </DialogDescription>
+          </DialogHeader>
+          
+          {selectedUser && (
+            <div className="space-y-4">
+              <div className="flex items-center justify-center">
+                <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center">
+                  <User className="h-8 w-8 text-primary" />
+                </div>
+              </div>
+              
+              <div className="space-y-3">
+                <div>
+                  <label className="text-sm font-medium text-muted-foreground">Nome</label>
+                  <p className="text-base font-semibold">
+                    {selectedUser.display_name || 'Nome não definido'}
+                  </p>
+                </div>
+                
+                <div>
+                  <label className="text-sm font-medium text-muted-foreground">Email</label>
+                  <p className="text-base">{selectedUser.email}</p>
+                </div>
+                
+                <div>
+                  <label className="text-sm font-medium text-muted-foreground">Role</label>
+                  <div className="mt-1">
+                    <Badge className={getRoleColor(selectedUser.role)}>
+                      {getRoleLabel(selectedUser.role)}
+                    </Badge>
+                  </div>
+                </div>
+                
+                <div>
+                  <label className="text-sm font-medium text-muted-foreground">Status de Membro</label>
+                  <div className="mt-1">
+                    <Badge className={getMemberStatusColor(selectedUser.member_status)}>
+                      {getMemberStatusLabel(selectedUser.member_status)}
+                    </Badge>
+                  </div>
+                </div>
+                
+                <div>
+                  <label className="text-sm font-medium text-muted-foreground">Data de Registo</label>
+                  <p className="text-base">
+                    {new Date(selectedUser.created_at).toLocaleDateString('pt-PT', {
+                      day: '2-digit',
+                      month: '2-digit',
+                      year: 'numeric',
+                      hour: '2-digit',
+                      minute: '2-digit'
+                    })}
+                  </p>
+                </div>
+                
+                <div>
+                  <label className="text-sm font-medium text-muted-foreground">Última Atualização</label>
+                  <p className="text-base">
+                    {formatDistanceToNow(new Date(selectedUser.updated_at), { 
+                      addSuffix: true, 
+                      locale: ptBR 
+                    })}
+                  </p>
+                </div>
+                
+                <div>
+                  <label className="text-sm font-medium text-muted-foreground">ID do Utilizador</label>
+                  <p className="text-xs text-muted-foreground font-mono bg-muted p-2 rounded">
+                    {selectedUser.user_id}
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
