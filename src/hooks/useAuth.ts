@@ -146,9 +146,7 @@ export function useAuth() {
 
   const signOut = async () => {
     try {
-      const { error } = await supabase.auth.signOut();
-      
-      // Reset auth state immediately regardless of error
+      // Reset auth state first to avoid UI inconsistencies
       setAuthState({
         user: null,
         session: null,
@@ -156,10 +154,18 @@ export function useAuth() {
         loading: false
       });
       
-      // Force page reload to clear any cached state
+      // Try to sign out from Supabase, but don't fail if session doesn't exist
+      const { error } = await supabase.auth.signOut();
+      
+      // If error is "session not found", it's fine - user is already logged out
+      if (error && !error.message.includes('Session not found') && !error.message.includes('session_not_found')) {
+        console.warn('Logout error:', error);
+      }
+      
+      // Navigate to home page
       window.location.href = '/';
       
-      return { error };
+      return { error: null };
     } catch (error) {
       // Reset state even on error
       setAuthState({
@@ -168,7 +174,11 @@ export function useAuth() {
         profile: null,
         loading: false
       });
+      
+      // Navigate to home page even on error
       window.location.href = '/';
+      
+      console.warn('Logout error:', error);
       return { error };
     }
   };

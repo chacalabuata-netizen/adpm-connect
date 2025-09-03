@@ -20,11 +20,19 @@ const Layout: React.FC<LayoutProps> = ({
   } = useToast();
   const handleLogout = async () => {
     if (onLogout) {
-      await onLogout();
-      toast({
-        title: "Sessão terminada",
-        description: "Até breve!"
-      });
+      try {
+        await onLogout();
+        toast({
+          title: "Sessão terminada",
+          description: "Até breve!"
+        });
+      } catch (error) {
+        // Show toast even if logout has an error, since user will be logged out anyway
+        toast({
+          title: "Sessão terminada", 
+          description: "Até breve!"
+        });
+      }
     }
   };
   const navItems = [{
