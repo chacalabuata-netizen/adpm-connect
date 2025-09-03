@@ -10,7 +10,7 @@ interface ChurchMapProps {
 
 const ChurchMap: React.FC<ChurchMapProps> = ({ className = "", showDetails = true }) => {
   const churchInfo = {
-    name: "Igreja Adventista do Sétimo Dia - Montijo",
+    name: "ADPM Casa de Zadoque Montijo Portugal",
     address: "Rua António José Saraiva, 2870-344 Montijo",
     phone: "+351 212 303 456",
     hours: "Sábados: 9:30 - 12:00",
