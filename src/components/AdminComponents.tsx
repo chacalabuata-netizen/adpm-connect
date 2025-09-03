@@ -260,7 +260,7 @@ export const AdminDashboard = ({ onNavigate }: { onNavigate: (section: string) =
 
 // Admin Announcements Component
 export const AdminAnnouncements = () => {
-  const { announcements, loading, createAnnouncement, updateAnnouncement, deleteAnnouncement } = useAnnouncements();
+  const { announcements, loading, createAnnouncement, updateAnnouncement, deleteAnnouncement, fetchAnnouncements } = useAnnouncements();
   const { toast } = useToast();
   const [formData, setFormData] = useState({ title: '', body: '', visible: true });
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -271,17 +271,38 @@ export const AdminAnnouncements = () => {
 
     try {
       if (editingId) {
-        await updateAnnouncement(editingId, formData);
-        toast({ title: "Anúncio atualizado", description: "Anúncio atualizado com sucesso." });
+        const result = await updateAnnouncement(editingId, formData);
+        if (result.data) {
+          toast({ title: "Anúncio atualizado", description: "Anúncio atualizado com sucesso." });
+          await fetchAnnouncements(); // Refresh the list
+        }
       } else {
-        await createAnnouncement({ ...formData, author_id: 'current-user-id' });
-        toast({ title: "Anúncio criado", description: "Novo anúncio criado com sucesso." });
+        const result = await createAnnouncement({ ...formData, author_id: 'current-user-id' });
+        if (result.data) {
+          toast({ title: "Anúncio criado", description: "Novo anúncio criado com sucesso." });
+          await fetchAnnouncements(); // Refresh the list
+        }
       }
       
       setFormData({ title: '', body: '', visible: true });
       setEditingId(null);
     } catch (error) {
       toast({ title: "Erro", description: "Ocorreu um erro. Tente novamente.", variant: "destructive" });
+    }
+  };
+
+  const handleToggleVisibility = async (id: string, currentVisibility: boolean) => {
+    try {
+      const result = await updateAnnouncement(id, { visible: !currentVisibility });
+      if (result.data) {
+        toast({ 
+          title: currentVisibility ? "Anúncio despublicado" : "Anúncio publicado", 
+          description: currentVisibility ? "Anúncio foi ocultado com sucesso." : "Anúncio foi publicado com sucesso." 
+        });
+        await fetchAnnouncements(); // Refresh the list
+      }
+    } catch (error) {
+      toast({ title: "Erro", description: "Erro ao alterar visibilidade do anúncio.", variant: "destructive" });
     }
   };
 
@@ -296,8 +317,11 @@ export const AdminAnnouncements = () => {
 
   const handleDelete = async (id: string) => {
     if (window.confirm('Tem certeza que deseja eliminar este anúncio?')) {
-      await deleteAnnouncement(id);
-      toast({ title: "Anúncio eliminado", description: "Anúncio eliminado com sucesso." });
+      const result = await deleteAnnouncement(id);
+      if (!result.error) {
+        toast({ title: "Anúncio eliminado", description: "Anúncio eliminado com sucesso." });
+        await fetchAnnouncements(); // Refresh the list
+      }
     }
   };
 
@@ -377,10 +401,27 @@ export const AdminAnnouncements = () => {
                     </Badge>
                   </div>
                   <p className="text-sm text-muted-foreground mb-3">{announcement.body}</p>
-                  <div className="flex gap-2">
+                  <div className="flex gap-2 flex-wrap">
                     <Button size="sm" variant="outline" onClick={() => handleEdit(announcement)}>
                       <Edit className="h-4 w-4 mr-1" />
                       Editar
+                    </Button>
+                    <Button 
+                      size="sm" 
+                      variant={announcement.visible ? "secondary" : "default"}
+                      onClick={() => handleToggleVisibility(announcement.id, announcement.visible)}
+                    >
+                      {announcement.visible ? (
+                        <>
+                          <EyeOff className="h-4 w-4 mr-1" />
+                          Despublicar
+                        </>
+                      ) : (
+                        <>
+                          <Eye className="h-4 w-4 mr-1" />
+                          Publicar
+                        </>
+                      )}
                     </Button>
                     <Button 
                       size="sm" 
@@ -388,7 +429,7 @@ export const AdminAnnouncements = () => {
                       onClick={() => handleDelete(announcement.id)}
                     >
                       <Trash2 className="h-4 w-4 mr-1" />
-                      Eliminar
+                      Remover
                     </Button>
                   </div>
                 </div>

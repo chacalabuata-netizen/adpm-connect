@@ -47,6 +47,9 @@ export function useAnnouncements() {
 
       if (error) throw error;
 
+      // Atualizar a lista local
+      setAnnouncements(prev => [data, ...prev]);
+
       toast({
         title: "Anúncio criado",
         description: "O anúncio foi publicado com sucesso."
@@ -74,6 +77,13 @@ export function useAnnouncements() {
 
       if (error) throw error;
 
+      // Atualizar a lista local
+      setAnnouncements(prev => 
+        prev.map(announcement => 
+          announcement.id === id ? { ...announcement, ...data } : announcement
+        )
+      );
+
       toast({
         title: "Anúncio atualizado",
         description: "As alterações foram guardadas."
@@ -98,6 +108,9 @@ export function useAnnouncements() {
         .eq('id', id);
 
       if (error) throw error;
+
+      // Remover da lista local
+      setAnnouncements(prev => prev.filter(announcement => announcement.id !== id));
 
       toast({
         title: "Anúncio eliminado",
