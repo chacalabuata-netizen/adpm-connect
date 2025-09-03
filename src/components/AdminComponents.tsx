@@ -28,6 +28,7 @@ import { useActivities } from '@/hooks/useActivities';
 import { useSchedules } from '@/hooks/useSchedules';
 import { useStats } from '@/hooks/useStats';
 import { useToast } from '@/hooks/use-toast';
+import { useAuth } from '@/hooks/useAuth';
 import { AdminMessages } from './AdminMessages';
 import { AdminCommunity } from './AdminCommunity';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -262,12 +263,22 @@ export const AdminDashboard = ({ onNavigate }: { onNavigate: (section: string) =
 export const AdminAnnouncements = () => {
   const { announcements, loading, createAnnouncement, updateAnnouncement, deleteAnnouncement, fetchAnnouncements } = useAnnouncements();
   const { toast } = useToast();
+  const { user, profile } = useAuth();
   const [formData, setFormData] = useState({ title: '', body: '', visible: true });
   const [editingId, setEditingId] = useState<string | null>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!formData.title.trim() || !formData.body.trim()) return;
+    
+    if (!profile?.id) {
+      toast({ 
+        title: "Erro", 
+        description: "Utilizador não autenticado.", 
+        variant: "destructive" 
+      });
+      return;
+    }
 
     try {
       if (editingId) {
@@ -277,7 +288,7 @@ export const AdminAnnouncements = () => {
           await fetchAnnouncements(); // Refresh the list
         }
       } else {
-        const result = await createAnnouncement({ ...formData, author_id: 'current-user-id' });
+        const result = await createAnnouncement({ ...formData, author_id: profile.id });
         if (result.data) {
           toast({ title: "Anúncio criado", description: "Novo anúncio criado com sucesso." });
           await fetchAnnouncements(); // Refresh the list
