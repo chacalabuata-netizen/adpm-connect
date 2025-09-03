@@ -142,18 +142,19 @@ const ChurchMap: React.FC<ChurchMapProps> = ({ className = "", showDetails = tru
   return (
     <div className={`w-full ${className}`}>
       <div className="relative">
-        {/* Map Container */}
-        <div 
-          ref={mapContainer} 
-          className="w-full h-[400px] rounded-lg shadow-lg relative"
-        />
-        
-        {/* Loading Overlay */}
-        {isLoading && (
-          <div className="absolute inset-0 bg-background/80 backdrop-blur-sm rounded-lg flex items-center justify-center">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-          </div>
-        )}
+        {/* Google Maps Embed */}
+        <div className="w-full h-[400px] rounded-lg shadow-lg overflow-hidden">
+          <iframe 
+            src="https://www.google.com/maps/embed?pb=!4v1756894534110!6m8!1m7!1sck0yQX_O9zcdICEqskMeaQ!2m2!1d38.70446541180975!2d-8.970729087805001!3f162.17!4f-17.78!5f0.7820865974627469"
+            width="100%" 
+            height="100%" 
+            style={{ border: 0 }}
+            allowFullScreen
+            loading="lazy" 
+            referrerPolicy="no-referrer-when-downgrade"
+            title="Localização da Igreja"
+          />
+        </div>
 
         {/* Quick Actions */}
         <div className="absolute bottom-4 left-4 right-4">
