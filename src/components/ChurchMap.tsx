@@ -1,10 +1,7 @@
-import React, { useEffect, useRef, useState } from 'react';
-import mapboxgl from 'mapbox-gl';
-import 'mapbox-gl/dist/mapbox-gl.css';
+import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { MapPin, Navigation, Phone, Clock, ExternalLink } from 'lucide-react';
-import { useToast } from '@/components/ui/use-toast';
 
 interface ChurchMapProps {
   className?: string;
@@ -12,14 +9,6 @@ interface ChurchMapProps {
 }
 
 const ChurchMap: React.FC<ChurchMapProps> = ({ className = "", showDetails = true }) => {
-  const mapContainer = useRef<HTMLDivElement>(null);
-  const map = useRef<mapboxgl.Map | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const { toast } = useToast();
-
-  // Igreja Adventista do Sétimo Dia - Montijo coordinates
-  const churchLocation: [number, number] = [-8.9728, 38.7071];
-  
   const churchInfo = {
     name: "Igreja Adventista do Sétimo Dia - Montijo",
     address: "Rua António José Saraiva, 2870-344 Montijo",
@@ -28,99 +17,9 @@ const ChurchMap: React.FC<ChurchMapProps> = ({ className = "", showDetails = tru
     website: "https://adventistas.org"
   };
 
-  useEffect(() => {
-    if (!mapContainer.current) return;
-
-    // Set Mapbox access token - will need to be configured in environment
-    mapboxgl.accessToken = 'pk.eyJ1IjoibG92YWJsZS1kZW1vIiwiYSI6ImNsczBqaHVxMTA4bXQyanBnb2p6YmY5cmoifQ.rQAZM1n0FrhWWHIbL_3qDg';
-    
-    try {
-      map.current = new mapboxgl.Map({
-        container: mapContainer.current,
-        style: 'mapbox://styles/mapbox/streets-v12',
-        center: churchLocation,
-        zoom: 15,
-        pitch: 45,
-        bearing: 0
-      });
-
-      // Add navigation controls
-      map.current.addControl(
-        new mapboxgl.NavigationControl({
-          visualizePitch: true,
-        }),
-        'top-right'
-      );
-
-      // Add geolocate control
-      const geolocate = new mapboxgl.GeolocateControl({
-        positionOptions: {
-          enableHighAccuracy: true
-        },
-        trackUserLocation: true,
-        showUserHeading: true
-      });
-      
-      map.current.addControl(geolocate, 'top-right');
-
-      map.current.on('load', () => {
-        if (!map.current) return;
-        
-        setIsLoading(false);
-
-        // Add church marker
-        const popup = new mapboxgl.Popup({ offset: 25 }).setHTML(`
-          <div class="p-2">
-            <h3 class="font-semibold text-sm mb-1">${churchInfo.name}</h3>
-            <p class="text-xs text-gray-600 mb-1">${churchInfo.address}</p>
-            <p class="text-xs text-gray-600 mb-1">${churchInfo.phone}</p>
-            <p class="text-xs text-gray-600">${churchInfo.hours}</p>
-          </div>
-        `);
-
-        new mapboxgl.Marker({
-          color: '#6366f1',
-          scale: 1.2
-        })
-          .setLngLat(churchLocation)
-          .setPopup(popup)
-          .addTo(map.current);
-
-        // Auto-show popup
-        setTimeout(() => {
-          popup.addTo(map.current!);
-        }, 1000);
-      });
-
-      map.current.on('error', (e) => {
-        console.error('Map error:', e);
-        setIsLoading(false);
-        toast({
-          title: "Erro no Mapa",
-          description: "Não foi possível carregar o mapa. Tente novamente mais tarde.",
-          variant: "destructive",
-        });
-      });
-
-    } catch (error) {
-      console.error('Error initializing map:', error);
-      setIsLoading(false);
-      toast({
-        title: "Erro no Mapa",
-        description: "Não foi possível inicializar o mapa.",
-        variant: "destructive",
-      });
-    }
-
-    // Cleanup
-    return () => {
-      map.current?.remove();
-    };
-  }, [toast]);
-
   const openDirections = () => {
     const isMobile = /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-    const coordinates = `${churchLocation[1]},${churchLocation[0]}`;
+    const coordinates = `38.7071,-8.9728`;
     
     if (isMobile) {
       // Try to open in native maps app
