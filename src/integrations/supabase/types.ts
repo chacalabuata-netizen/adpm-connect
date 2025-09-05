@@ -312,6 +312,54 @@ export type Database = {
         }
         Relationships: []
       }
+      radio_programs: {
+        Row: {
+          author_id: string
+          category: string | null
+          created_at: string
+          day_of_week: number
+          description: string | null
+          duration_minutes: number | null
+          host_name: string | null
+          id: string
+          time_end: string | null
+          time_start: string
+          title: string
+          updated_at: string
+          visible: boolean
+        }
+        Insert: {
+          author_id: string
+          category?: string | null
+          created_at?: string
+          day_of_week: number
+          description?: string | null
+          duration_minutes?: number | null
+          host_name?: string | null
+          id?: string
+          time_end?: string | null
+          time_start: string
+          title: string
+          updated_at?: string
+          visible?: boolean
+        }
+        Update: {
+          author_id?: string
+          category?: string | null
+          created_at?: string
+          day_of_week?: number
+          description?: string | null
+          duration_minutes?: number | null
+          host_name?: string | null
+          id?: string
+          time_end?: string | null
+          time_start?: string
+          title?: string
+          updated_at?: string
+          visible?: boolean
+        }
+        Relationships: []
+      }
       schedules: {
         Row: {
           created_at: string

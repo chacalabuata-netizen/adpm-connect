@@ -23,19 +23,154 @@ import {
   Download,
   Smartphone
 } from 'lucide-react';
+import { useAuth } from '@/hooks/useAuth';
 import { useAnnouncements } from '@/hooks/useAnnouncements';
 import { useActivities } from '@/hooks/useActivities';
 import { useSchedules } from '@/hooks/useSchedules';
+import { useRadioPrograms } from '@/hooks/useRadioPrograms';
 import { useStats } from '@/hooks/useStats';
-import { useToast } from '@/hooks/use-toast';
-import { useAuth } from '@/hooks/useAuth';
+import { useContactMessages } from '@/hooks/useContactMessages';
+import { AdminRadioPrograms } from '@/components/AdminRadioPrograms';
 import { AdminMessages } from './AdminMessages';
 import { AdminCommunity } from './AdminCommunity';
+import { AdminUsers } from './AdminUsers';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { useToast } from '@/hooks/use-toast';
+
+// Main Admin Components wrapper
+export const AdminComponents = () => {
+  const [currentSection, setCurrentSection] = useState('dashboard');
+
+  const handleNavigate = (section: string) => {
+    setCurrentSection(section);
+  };
+
+  const renderCurrentSection = () => {
+    switch (currentSection) {
+      case 'announcements':
+        return <AdminAnnouncements />;
+      case 'activities':
+        return <AdminActivities />;
+      case 'schedules':
+        return <AdminSchedules />;
+      case 'radio-programs':
+        return <AdminRadioPrograms />;
+      case 'community':
+        return <AdminCommunity />;
+      case 'users':
+        return <AdminUsers />;
+      case 'messages':
+        return <AdminMessages />;
+      default:
+        return <AdminDashboard onNavigate={handleNavigate} />;
+    }
+  };
+
+  return (
+    <div className="min-h-screen bg-gradient-to-b from-background to-secondary/20">
+      <div className="container mx-auto px-4 py-8">
+        {/* Navigation */}
+        <div className="mb-8">
+          <div className="flex flex-wrap items-center gap-2 mb-6">
+            <Button
+              variant={currentSection === 'dashboard' ? 'default' : 'outline'}
+              onClick={() => setCurrentSection('dashboard')}
+            >
+              Dashboard
+            </Button>
+            <Button
+              variant={currentSection === 'announcements' ? 'default' : 'outline'}
+              onClick={() => setCurrentSection('announcements')}
+            >
+              Anúncios
+            </Button>
+            <Button
+              variant={currentSection === 'activities' ? 'default' : 'outline'}
+              onClick={() => setCurrentSection('activities')}
+            >
+              Atividades
+            </Button>
+            <Button
+              variant={currentSection === 'schedules' ? 'default' : 'outline'}
+              onClick={() => setCurrentSection('schedules')}
+            >
+              Horários
+            </Button>
+            <Button
+              variant={currentSection === 'radio-programs' ? 'default' : 'outline'}
+              onClick={() => setCurrentSection('radio-programs')}
+            >
+              Programas de Rádio
+            </Button>
+            <Button
+              variant={currentSection === 'community' ? 'default' : 'outline'}
+              onClick={() => setCurrentSection('community')}
+            >
+              Comunidade
+            </Button>
+            <Button
+              variant={currentSection === 'users' ? 'default' : 'outline'}
+              onClick={() => setCurrentSection('users')}
+            >
+              Utilizadores
+            </Button>
+            <Button
+              variant={currentSection === 'messages' ? 'default' : 'outline'}
+              onClick={() => setCurrentSection('messages')}
+            >
+              Mensagens
+            </Button>
+          </div>
+        </div>
+
+        {/* Content */}
+        {renderCurrentSection()}
+      </div>
+    </div>
+  );
+};
 
 // Admin Dashboard Component
 export const AdminDashboard = ({ onNavigate }: { onNavigate: (section: string) => void }) => {
   const { stats, loading: statsLoading } = useStats();
+
+  const quickActions = React.useMemo(() => [
+    {
+      title: 'Anúncios',
+      path: 'announcements',
+      icon: MessageSquare,
+      description: 'Gerir anúncios da igreja'
+    },
+    {
+      title: 'Atividades',
+      path: 'activities',
+      icon: Activity,
+      description: 'Administrar atividades e eventos'
+    },
+    {
+      title: 'Horários',
+      path: 'schedules',
+      icon: CalendarDays,
+      description: 'Consultas e eventos da igreja'
+    },
+    {
+      title: 'Programas de Rádio',
+      path: 'radio-programs',
+      icon: CalendarDays,
+      description: 'Gestão da programação da rádio'
+    }
+  ], [stats]);
+
+  if (statsLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
+          <p className="mt-4 text-muted-foreground">Carregando dados...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -163,36 +298,27 @@ export const AdminDashboard = ({ onNavigate }: { onNavigate: (section: string) =
           </CardDescription>
         </CardHeader>
         <CardContent className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-          <Button 
-            className="h-20 flex-col"
-            onClick={() => onNavigate('announcements')}
-          >
-            <Plus className="h-6 w-6 mb-2" />
-            Criar Anúncio
-          </Button>
-          <Button 
-            variant="outline" 
-            className="h-20 flex-col"
-            onClick={() => onNavigate('schedules')}
-          >
-            <Clock className="h-6 w-6 mb-2" />
-            Gerir Horários
-          </Button>
-          <Button 
-            variant="outline" 
-            className="h-20 flex-col"
-            onClick={() => onNavigate('activities')}
-          >
-            <Activity className="h-6 w-6 mb-2" />
-            Gerir Atividades
-          </Button>
+          {quickActions.map((action) => {
+            const Icon = action.icon;
+            return (
+              <Button 
+                key={action.path}
+                className="h-20 flex-col"
+                variant="outline"
+                onClick={() => onNavigate(action.path)}
+              >
+                <Icon className="h-6 w-6 mb-2" />
+                <span className="text-sm text-center">{action.title}</span>
+              </Button>
+            );
+          })}
           <Button 
             variant="outline" 
             className="h-20 flex-col"
             onClick={() => onNavigate('community')}
           >
             <MessageSquare className="h-6 w-6 mb-2" />
-            Gerir Comunidade
+            <span className="text-sm">Gerir Comunidade</span>
           </Button>
           <Button 
             variant="outline" 
@@ -200,7 +326,7 @@ export const AdminDashboard = ({ onNavigate }: { onNavigate: (section: string) =
             onClick={() => onNavigate('users')}
           >
             <Users className="h-6 w-6 mb-2" />
-            Ver Utilizadores
+            <span className="text-sm">Ver Utilizadores</span>
           </Button>
         </CardContent>
       </Card>
@@ -491,143 +617,124 @@ export const AdminActivities = () => {
     }
   }, [editingActivity]);
 
-  const handleCreateActivity = async () => {
-    try {
-      if (editingActivity) {
-        await updateActivity(editingActivity.id, {
-          ...newActivity,
-          day_of_week: parseInt(newActivity.day_of_week.toString()),
-        });
-      } else {
-        await createActivity({
-          ...newActivity,
-          day_of_week: parseInt(newActivity.day_of_week.toString()),
-        });
-      }
+  const resetForm = () => {
+    setNewActivity({
+      title: '',
+      description: '',
+      day_of_week: 0,
+      time_start: '',
+      time_end: '',
+      visible: true
+    });
+    setEditingActivity(null);
+    setIsCreatingActivity(false);
+  };
 
-      setNewActivity({
-        title: '',
-        description: '',
-        day_of_week: 0,
-        time_start: '',
-        time_end: '',
-        visible: true
-      });
-      setEditingActivity(null);
-      setIsCreatingActivity(false);
-    } catch (error) {
-      // Error handled in hook
+  const handleCreateActivity = async () => {
+    if (newActivity.title && newActivity.time_start) {
+      if (editingActivity) {
+        await updateActivity(editingActivity.id, newActivity);
+      } else {
+        await createActivity(newActivity);
+      }
+      resetForm();
     }
   };
 
+  const handleToggleVisibility = async (activity: any) => {
+    await updateActivity(activity.id, { visible: !activity.visible });
+  };
+
+  if (activitiesLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
+          <p className="mt-4 text-muted-foreground">Carregando atividades...</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold tracking-tight">Gestão de Atividades</h1>
-        <p className="text-muted-foreground">
-          Gerencie as atividades e eventos da igreja
-        </p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h2 className="text-2xl font-bold">Gestão de Atividades</h2>
+          <p className="text-muted-foreground">Administre as atividades e eventos da igreja</p>
+        </div>
+        <Button onClick={() => setIsCreatingActivity(true)}>
+          <Plus className="mr-2 h-4 w-4" />
+          Nova Atividade
+        </Button>
       </div>
 
-      <div className="grid lg:grid-cols-2 gap-8">
-        <Card>
-          <CardHeader>
-            <CardTitle>Nova Atividade</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <Button 
-              onClick={() => {
-                setIsCreatingActivity(true);
-                setEditingActivity(null);
-                setNewActivity({
-                  title: '',
-                  description: '',
-                  day_of_week: 0,
-                  time_start: '',
-                  time_end: '',
-                  visible: true
-                });
-              }}
-              className="w-full"
-            >
-              <Plus className="h-4 w-4 mr-2" />
-              Nova Atividade
-            </Button>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle>Atividades Existentes</CardTitle>
-          </CardHeader>
-          <CardContent>
-            {activitiesLoading ? (
-              <div className="text-center py-4">Carregando...</div>
-            ) : (
-              <div className="space-y-4 max-h-96 overflow-y-auto">
-                {activities.map((activity) => (
-                  <div key={activity.id} className="border rounded-lg p-4">
-                    <div className="flex justify-between items-center">
-                      <div>
-                        <h3 className="font-semibold">{activity.title}</h3>
-                        <p className="text-sm text-muted-foreground">
-                          {getDayName(activity.day_of_week)} - {formatActivityTime(activity.time_start, activity.time_end)}
-                        </p>
-                        {activity.description && (
-                          <p className="text-sm text-muted-foreground mt-1">{activity.description}</p>
-                        )}
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <Badge variant={activity.visible ? "default" : "secondary"}>
-                          {activity.visible ? "Visível" : "Oculto"}
-                        </Badge>
-                        <Button 
-                          variant="outline" 
-                          size="sm"
-                          onClick={() => {
-                            setEditingActivity(activity);
-                            setIsCreatingActivity(true);
-                          }}
-                        >
-                          <Edit className="h-4 w-4 mr-1" />
-                          Editar
-                        </Button>
-                        <Button 
-                          variant="outline" 
-                          size="sm"
-                          onClick={() => updateActivity(activity.id, { visible: !activity.visible })}
-                        >
-                          <EyeOff className="h-4 w-4 mr-1" />
-                          {activity.visible ? 'Ocultar' : 'Publicar'}
-                        </Button>
-                        <Button 
-                          variant="destructive" 
-                          size="sm"
-                          onClick={() => {
-                            if (window.confirm('Tem certeza que deseja eliminar esta atividade?')) {
-                              deleteActivity(activity.id);
-                            }
-                          }}
-                        >
-                          <Trash2 className="h-4 w-4 mr-1" />
-                          Eliminar
-                        </Button>
-                      </div>
-                    </div>
-                  </div>
-                ))}
+      <div className="grid gap-6">
+        {activities.map((activity) => (
+          <Card key={activity.id} className={`${!activity.visible ? 'opacity-60' : ''}`}>
+            <CardHeader>
+              <div className="flex items-start justify-between">
+                <div className="flex-1">
+                  <CardTitle className="flex items-center gap-2">
+                    {activity.title}
+                    {!activity.visible && <EyeOff size={16} className="text-muted-foreground" />}
+                  </CardTitle>
+                  <CardDescription>
+                    {activity.description}
+                  </CardDescription>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Button
+                    onClick={() => handleToggleVisibility(activity)}
+                    variant="ghost"
+                    size="sm"
+                  >
+                    {activity.visible ? <Eye size={16} /> : <EyeOff size={16} />}
+                  </Button>
+                  <Button
+                    onClick={() => {
+                      setEditingActivity(activity);
+                      setIsCreatingActivity(true);
+                    }}
+                    variant="ghost"
+                    size="sm"
+                  >
+                    <Edit size={16} />
+                  </Button>
+                  <Button
+                    onClick={() => deleteActivity(activity.id)}
+                    variant="ghost"
+                    size="sm"
+                    className="text-destructive hover:text-destructive"
+                  >
+                    <Trash2 size={16} />
+                  </Button>
+                </div>
               </div>
-            )}
-          </CardContent>
-        </Card>
+            </CardHeader>
+            <CardContent>
+              <div className="flex flex-wrap items-center gap-2">
+                <Badge variant="outline">
+                  {getDayName(activity.day_of_week)}
+                </Badge>
+                <Badge variant="outline">
+                  {formatActivityTime(activity.time_start, activity.time_end)}
+                </Badge>
+              </div>
+            </CardContent>
+          </Card>
+        ))}
       </div>
 
-      {/* Create/Edit Activity Dialog */}
+      {/* Create/Edit Dialog */}
       <Dialog open={isCreatingActivity} onOpenChange={setIsCreatingActivity}>
-        <DialogContent className="max-w-md">
+        <DialogContent className="max-w-lg">
           <DialogHeader>
-            <DialogTitle>{editingActivity ? 'Editar Atividade' : 'Nova Atividade'}</DialogTitle>
+            <DialogTitle>
+              {editingActivity ? 'Editar Atividade' : 'Nova Atividade'}
+            </DialogTitle>
           </DialogHeader>
+          
           <div className="space-y-4">
             <div>
               <Label htmlFor="activity-title">Título</Label>
@@ -635,32 +742,35 @@ export const AdminActivities = () => {
                 id="activity-title"
                 value={newActivity.title}
                 onChange={(e) => setNewActivity({ ...newActivity, title: e.target.value })}
-                placeholder="Ex: Estudo Bíblico"
+                placeholder="Nome da atividade"
               />
             </div>
-            
+
             <div>
               <Label htmlFor="activity-description">Descrição</Label>
               <Textarea
                 id="activity-description"
                 value={newActivity.description}
                 onChange={(e) => setNewActivity({ ...newActivity, description: e.target.value })}
-                placeholder="Descrição opcional"
+                placeholder="Breve descrição da atividade"
+                rows={3}
               />
             </div>
 
             <div>
               <Label htmlFor="activity-day">Dia da Semana</Label>
-              <Select 
-                value={newActivity.day_of_week.toString()} 
+              <Select
+                value={newActivity.day_of_week.toString()}
                 onValueChange={(value) => setNewActivity({ ...newActivity, day_of_week: parseInt(value) })}
               >
                 <SelectTrigger>
-                  <SelectValue placeholder="Selecione o dia" />
+                  <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
                   {DAYS_OF_WEEK.map((day, index) => (
-                    <SelectItem key={index} value={index.toString()}>{day}</SelectItem>
+                    <SelectItem key={index} value={index.toString()}>
+                      {day}
+                    </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
@@ -668,19 +778,18 @@ export const AdminActivities = () => {
 
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <Label htmlFor="activity-start">Hora de Início</Label>
+                <Label htmlFor="activity-start-time">Hora de Início</Label>
                 <Input
-                  id="activity-start"
+                  id="activity-start-time"
                   type="time"
                   value={newActivity.time_start}
                   onChange={(e) => setNewActivity({ ...newActivity, time_start: e.target.value })}
                 />
               </div>
-              
               <div>
-                <Label htmlFor="activity-end">Hora de Fim</Label>
+                <Label htmlFor="activity-end-time">Hora de Fim</Label>
                 <Input
-                  id="activity-end"
+                  id="activity-end-time"
                   type="time"
                   value={newActivity.time_end}
                   onChange={(e) => setNewActivity({ ...newActivity, time_end: e.target.value })}
@@ -698,13 +807,7 @@ export const AdminActivities = () => {
             </div>
 
             <div className="flex justify-end gap-2">
-              <Button 
-                variant="outline" 
-                onClick={() => {
-                  setIsCreatingActivity(false);
-                  setEditingActivity(null);
-                }}
-              >
+              <Button variant="outline" onClick={resetForm}>
                 Cancelar
               </Button>
               <Button onClick={handleCreateActivity}>
@@ -756,143 +859,124 @@ export const AdminSchedules = () => {
     }
   }, [editingSchedule]);
 
-  const handleCreateSchedule = async () => {
-    try {
-      if (editingSchedule) {
-        await updateSchedule(editingSchedule.id, {
-          ...newSchedule,
-          day_of_week: parseInt(newSchedule.day_of_week.toString()),
-        });
-      } else {
-        await createSchedule({
-          ...newSchedule,
-          day_of_week: parseInt(newSchedule.day_of_week.toString()),
-        });
-      }
+  const resetForm = () => {
+    setNewSchedule({
+      title: '',
+      description: '',
+      day_of_week: 0,
+      time_start: '',
+      time_end: '',
+      visible: true
+    });
+    setEditingSchedule(null);
+    setIsCreatingSchedule(false);
+  };
 
-      setNewSchedule({
-        title: '',
-        description: '',
-        day_of_week: 0,
-        time_start: '',
-        time_end: '',
-        visible: true
-      });
-      setEditingSchedule(null);
-      setIsCreatingSchedule(false);
-    } catch (error) {
-      // Error handled in hook
+  const handleCreateSchedule = async () => {
+    if (newSchedule.title && newSchedule.time_start) {
+      if (editingSchedule) {
+        await updateSchedule(editingSchedule.id, newSchedule);
+      } else {
+        await createSchedule(newSchedule);
+      }
+      resetForm();
     }
   };
 
+  const handleToggleVisibility = async (schedule: any) => {
+    await updateSchedule(schedule.id, { visible: !schedule.visible });
+  };
+
+  if (schedulesLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
+          <p className="mt-4 text-muted-foreground">Carregando horários...</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold tracking-tight">Gestão de Horários</h1>
-        <p className="text-muted-foreground">
-          Gerencie os horários de cultos e eventos da igreja
-        </p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h2 className="text-2xl font-bold">Gestão de Horários</h2>
+          <p className="text-muted-foreground">Administre os horários de cultos e eventos</p>
+        </div>
+        <Button onClick={() => setIsCreatingSchedule(true)}>
+          <Plus className="mr-2 h-4 w-4" />
+          Novo Horário
+        </Button>
       </div>
 
-      <div className="grid lg:grid-cols-2 gap-8">
-        <Card>
-          <CardHeader>
-            <CardTitle>Novo Horário</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <Button 
-              onClick={() => {
-                setIsCreatingSchedule(true);
-                setEditingSchedule(null);
-                setNewSchedule({
-                  title: '',
-                  description: '',
-                  day_of_week: 0,
-                  time_start: '',
-                  time_end: '',
-                  visible: true
-                });
-              }}
-              className="w-full"
-            >
-              <Plus className="h-4 w-4 mr-2" />
-              Novo Horário
-            </Button>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle>Horários Existentes</CardTitle>
-          </CardHeader>
-          <CardContent>
-            {schedulesLoading ? (
-              <div className="text-center py-4">Carregando...</div>
-            ) : (
-              <div className="space-y-4 max-h-96 overflow-y-auto">
-                {schedules.map((schedule) => (
-                  <div key={schedule.id} className="border rounded-lg p-4">
-                    <div className="flex justify-between items-center">
-                      <div>
-                        <h3 className="font-semibold">{schedule.title}</h3>
-                        <p className="text-sm text-muted-foreground">
-                          {getDayName(schedule.day_of_week)} - {formatScheduleTime(schedule.time_start, schedule.time_end)}
-                        </p>
-                        {schedule.description && (
-                          <p className="text-sm text-muted-foreground mt-1">{schedule.description}</p>
-                        )}
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <Badge variant={schedule.visible ? "default" : "secondary"}>
-                          {schedule.visible ? "Visível" : "Oculto"}
-                        </Badge>
-                        <Button 
-                          variant="outline" 
-                          size="sm"
-                          onClick={() => {
-                            setEditingSchedule(schedule);
-                            setIsCreatingSchedule(true);
-                          }}
-                        >
-                          <Edit className="h-4 w-4 mr-1" />
-                          Editar
-                        </Button>
-                        <Button 
-                          variant="outline" 
-                          size="sm"
-                          onClick={() => updateSchedule(schedule.id, { visible: !schedule.visible })}
-                        >
-                          <EyeOff className="h-4 w-4 mr-1" />
-                          {schedule.visible ? 'Ocultar' : 'Publicar'}
-                        </Button>
-                        <Button 
-                          variant="destructive" 
-                          size="sm"
-                          onClick={() => {
-                            if (window.confirm('Tem certeza que deseja eliminar este horário?')) {
-                              deleteSchedule(schedule.id);
-                            }
-                          }}
-                        >
-                          <Trash2 className="h-4 w-4 mr-1" />
-                          Eliminar
-                        </Button>
-                      </div>
-                    </div>
-                  </div>
-                ))}
+      <div className="grid gap-6">
+        {schedules.map((schedule) => (
+          <Card key={schedule.id} className={`${!schedule.visible ? 'opacity-60' : ''}`}>
+            <CardHeader>
+              <div className="flex items-start justify-between">
+                <div className="flex-1">
+                  <CardTitle className="flex items-center gap-2">
+                    {schedule.title}
+                    {!schedule.visible && <EyeOff size={16} className="text-muted-foreground" />}
+                  </CardTitle>
+                  <CardDescription>
+                    {schedule.description}
+                  </CardDescription>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Button
+                    onClick={() => handleToggleVisibility(schedule)}
+                    variant="ghost"
+                    size="sm"
+                  >
+                    {schedule.visible ? <Eye size={16} /> : <EyeOff size={16} />}
+                  </Button>
+                  <Button
+                    onClick={() => {
+                      setEditingSchedule(schedule);
+                      setIsCreatingSchedule(true);
+                    }}
+                    variant="ghost"
+                    size="sm"
+                  >
+                    <Edit size={16} />
+                  </Button>
+                  <Button
+                    onClick={() => deleteSchedule(schedule.id)}
+                    variant="ghost"
+                    size="sm"
+                    className="text-destructive hover:text-destructive"
+                  >
+                    <Trash2 size={16} />
+                  </Button>
+                </div>
               </div>
-            )}
-          </CardContent>
-        </Card>
+            </CardHeader>
+            <CardContent>
+              <div className="flex flex-wrap items-center gap-2">
+                <Badge variant="outline">
+                  {getDayName(schedule.day_of_week)}
+                </Badge>
+                <Badge variant="outline">
+                  {formatScheduleTime(schedule.time_start, schedule.time_end)}
+                </Badge>
+              </div>
+            </CardContent>
+          </Card>
+        ))}
       </div>
 
-      {/* Create/Edit Schedule Dialog */}
+      {/* Create/Edit Dialog */}
       <Dialog open={isCreatingSchedule} onOpenChange={setIsCreatingSchedule}>
-        <DialogContent className="max-w-md">
+        <DialogContent className="max-w-lg">
           <DialogHeader>
-            <DialogTitle>{editingSchedule ? 'Editar Horário' : 'Novo Horário'}</DialogTitle>
+            <DialogTitle>
+              {editingSchedule ? 'Editar Horário' : 'Novo Horário'}
+            </DialogTitle>
           </DialogHeader>
+          
           <div className="space-y-4">
             <div>
               <Label htmlFor="schedule-title">Título</Label>
@@ -900,32 +984,35 @@ export const AdminSchedules = () => {
                 id="schedule-title"
                 value={newSchedule.title}
                 onChange={(e) => setNewSchedule({ ...newSchedule, title: e.target.value })}
-                placeholder="Ex: Culto Dominical"
+                placeholder="Nome do evento/culto"
               />
             </div>
-            
+
             <div>
               <Label htmlFor="schedule-description">Descrição</Label>
               <Textarea
                 id="schedule-description"
                 value={newSchedule.description}
                 onChange={(e) => setNewSchedule({ ...newSchedule, description: e.target.value })}
-                placeholder="Descrição opcional"
+                placeholder="Breve descrição do evento"
+                rows={3}
               />
             </div>
 
             <div>
               <Label htmlFor="schedule-day">Dia da Semana</Label>
-              <Select 
-                value={newSchedule.day_of_week.toString()} 
+              <Select
+                value={newSchedule.day_of_week.toString()}
                 onValueChange={(value) => setNewSchedule({ ...newSchedule, day_of_week: parseInt(value) })}
               >
                 <SelectTrigger>
-                  <SelectValue placeholder="Selecione o dia" />
+                  <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
                   {DAYS_OF_WEEK.map((day, index) => (
-                    <SelectItem key={index} value={index.toString()}>{day}</SelectItem>
+                    <SelectItem key={index} value={index.toString()}>
+                      {day}
+                    </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
@@ -933,19 +1020,18 @@ export const AdminSchedules = () => {
 
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <Label htmlFor="schedule-start">Hora de Início</Label>
+                <Label htmlFor="schedule-start-time">Hora de Início</Label>
                 <Input
-                  id="schedule-start"
+                  id="schedule-start-time"
                   type="time"
                   value={newSchedule.time_start}
                   onChange={(e) => setNewSchedule({ ...newSchedule, time_start: e.target.value })}
                 />
               </div>
-              
               <div>
-                <Label htmlFor="schedule-end">Hora de Fim</Label>
+                <Label htmlFor="schedule-end-time">Hora de Fim</Label>
                 <Input
-                  id="schedule-end"
+                  id="schedule-end-time"
                   type="time"
                   value={newSchedule.time_end}
                   onChange={(e) => setNewSchedule({ ...newSchedule, time_end: e.target.value })}

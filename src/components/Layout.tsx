@@ -56,6 +56,10 @@ const Layout: React.FC<LayoutProps> = ({
     label: 'Comunidade',
     icon: Users
   }, {
+    path: '/radio',
+    label: 'Rádio ADPM',
+    icon: Globe
+  }, {
     path: '/download-app',
     label: 'Download App',
     icon: Download
