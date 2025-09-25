@@ -16,6 +16,7 @@ import { AdminComponents } from '@/components/AdminComponents';
 import Announcements from './Announcements';
 
 const Index = () => {
+  const { user, signOut } = useAuth();
   return (
     <Routes>
       <Route path="/" element={<Home />} />

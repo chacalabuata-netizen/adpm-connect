@@ -1,64 +1,96 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { useAuth } from '@/hooks/useAuth';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Church, Shield } from 'lucide-react';
-import { useToast } from '@/hooks/use-toast';
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { useToast } from "@/hooks/use-toast";
+import { useNavigate } from 'react-router-dom';
+import { useEffect } from 'react';
 
 interface AuthProps {
-  onLogin?: (email: string, role: 'member' | 'admin') => void; // Keep for compatibility
+  onLoginSuccess?: () => void;
 }
 
-const Auth: React.FC<AuthProps> = () => {
+export default function Auth({ onLoginSuccess }: AuthProps) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [displayName, setDisplayName] = useState('');
   const [memberStatus, setMemberStatus] = useState('visitante');
   const [loading, setLoading] = useState(false);
   const [isSignUp, setIsSignUp] = useState(false);
+  const [role, setRole] = useState<'member' | 'admin'>('member');
+  
+  const { signUp, signIn, user } = useAuth();
   const { toast } = useToast();
-  const { signIn, signUp } = useAuth();
+  const navigate = useNavigate();
 
-  const handleSubmit = async (e: React.FormEvent, role: 'member' | 'admin') => {
-    e.preventDefault();
-    
-    if (!email.trim() || !password) {
-      toast({
-        title: "Campos obrigatórios",
-        description: "Por favor, preencha email e palavra-passe.",
-        variant: "destructive",
-      });
-      return;
+  // Redirect if already logged in
+  useEffect(() => {
+    if (user) {
+      navigate('/');
     }
+  }, [user, navigate]);
 
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
     setLoading(true);
-    
+
     try {
       if (isSignUp) {
-        const { error } = await signUp(email.trim(), password, displayName.trim(), memberStatus);
-        if (error) throw error;
-        
-        toast({
-          title: "Registo efetuado",
-          description: "Verifique o seu email para confirmar a conta.",
-        });
+        const { error } = await signUp(email, password, displayName, memberStatus);
+        if (error) {
+          if (error.message.includes('already registered')) {
+            toast({
+              title: "Erro",
+              description: "Este email já está registrado. Tente fazer login.",
+              variant: "destructive",
+            });
+          } else {
+            toast({
+              title: "Erro no cadastro",
+              description: error.message,
+              variant: "destructive",
+            });
+          }
+        } else {
+          toast({
+            title: "Cadastro realizado",
+            description: "Verifique seu email para confirmar o cadastro.",
+          });
+        }
       } else {
-        const { error } = await signIn(email.trim(), password);
-        if (error) throw error;
-        
-        toast({
-          title: "Bem-vindo!",
-          description: `Sessão iniciada com sucesso.`,
-        });
+        const { error } = await signIn(email, password);
+        if (error) {
+          if (error.message.includes('Invalid login credentials')) {
+            toast({
+              title: "Erro",
+              description: "Email ou senha incorretos.",
+              variant: "destructive",
+            });
+          } else {
+            toast({
+              title: "Erro no login",
+              description: error.message,
+              variant: "destructive",
+            });
+          }
+        } else {
+          toast({
+            title: "Login realizado",
+            description: "Bem-vindo de volta!",
+          });
+          onLoginSuccess?.();
+          navigate('/');
+        }
       }
-    } catch (error: any) {
+    } catch (error) {
+      console.error('Auth error:', error);
       toast({
-        title: isSignUp ? "Erro ao registar" : "Erro ao iniciar sessão",
-        description: error.message,
+        title: "Erro",
+        description: "Ocorreu um erro inesperado.",
         variant: "destructive",
       });
     } finally {
@@ -67,197 +99,174 @@ const Auth: React.FC<AuthProps> = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-hero flex items-center justify-center p-4">
-      <div className="w-full max-w-md">
-        {/* Logo */}
-        <div className="text-center mb-8">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background via-background/80 to-muted p-4">
+      <div className="w-full max-w-md space-y-8">
+        <div className="text-center">
           <div className="flex justify-center mb-4">
-            <div className="p-4 bg-primary-foreground/20 rounded-full backdrop-blur-sm">
-              <img 
-                src="/lovable-uploads/b58bfd74-9a2c-42f9-b3c8-7cf171dbafa5.png" 
-                alt="ADPM Casa de Zadoque Logo"
-                className="h-12 w-12 object-contain"
-              />
-            </div>
+            <img 
+              src="/lovable-uploads/b58bfd74-9a2c-42f9-b3c8-7cf171dbafa5.png" 
+              alt="ADPM Casa de Zadoque" 
+              className="h-16 w-16 object-contain"
+            />
           </div>
-          <h1 className="text-3xl font-bold text-primary-foreground mb-2">
-            ADPM Casa de Zadoque
-          </h1>
-          <p className="text-primary-foreground/80">Montijo</p>
+          <h1 className="text-2xl font-bold tracking-tight">ADPM Casa de Zadoque</h1>
+          <p className="text-muted-foreground">Entre ou cadastre-se para continuar</p>
         </div>
 
-        <Card className="border-border/20 shadow-deep backdrop-blur-sm bg-card/95">
-          <CardHeader className="text-center">
-            <CardTitle className="text-2xl">
-              {isSignUp ? 'Criar Conta' : 'Iniciar Sessão'}
-            </CardTitle>
+        <Card className="border-border/50 shadow-lg">
+          <CardHeader className="space-y-1">
+            <CardTitle className="text-xl">Autenticação</CardTitle>
             <CardDescription>
-              {isSignUp ? 'Registe-se para aceder à plataforma' : 'Aceda à sua conta para continuar'}
+              {isSignUp ? 'Crie sua conta' : 'Entre com sua conta'}
             </CardDescription>
           </CardHeader>
-          
           <CardContent>
-            <Tabs defaultValue="member" className="w-full">
+            <Tabs value={role} onValueChange={(value) => setRole(value as 'member' | 'admin')} className="mb-6">
               <TabsList className="grid w-full grid-cols-2">
-                <TabsTrigger value="member" className="flex items-center gap-2">
-                  <Church className="h-4 w-4" />
-                  Membro
-                </TabsTrigger>
-                <TabsTrigger value="admin" className="flex items-center gap-2">
-                  <Shield className="h-4 w-4" />
-                  Admin
-                </TabsTrigger>
+                <TabsTrigger value="member">Membro</TabsTrigger>
+                <TabsTrigger value="admin">Admin</TabsTrigger>
               </TabsList>
               
-              <TabsContent value="member">
-                <form onSubmit={(e) => handleSubmit(e, 'member')} className="space-y-4">
+              <TabsContent value="member" className="space-y-4 mt-4">
+                <form onSubmit={handleSubmit} className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="email">Email</Label>
+                    <Input
+                      id="email"
+                      type="email"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      required
+                      placeholder="seu@email.com"
+                    />
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <Label htmlFor="password">Senha</Label>
+                    <Input
+                      id="password"
+                      type="password"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      required
+                      placeholder="Sua senha"
+                    />
+                  </div>
+
                   {isSignUp && (
                     <>
                       <div className="space-y-2">
-                        <Label htmlFor="member-name">Nome (opcional)</Label>
+                        <Label htmlFor="displayName">Nome de Exibição</Label>
                         <Input
-                          id="member-name"
+                          id="displayName"
                           type="text"
-                          placeholder="Seu nome completo"
                           value={displayName}
                           onChange={(e) => setDisplayName(e.target.value)}
-                          autoComplete="name"
+                          placeholder="Seu nome"
                         />
                       </div>
-                      
+
                       <div className="space-y-2">
-                        <Label htmlFor="member-status">Status</Label>
+                        <Label htmlFor="memberStatus">Status de Membro</Label>
                         <Select value={memberStatus} onValueChange={setMemberStatus}>
                           <SelectTrigger>
                             <SelectValue placeholder="Selecione seu status" />
                           </SelectTrigger>
                           <SelectContent>
                             <SelectItem value="visitante">Visitante</SelectItem>
-                            <SelectItem value="membro_batizado">Membro Batizado</SelectItem>
+                            <SelectItem value="congregante">Congregante</SelectItem>
+                            <SelectItem value="batizado">Batizado</SelectItem>
                           </SelectContent>
                         </Select>
                       </div>
                     </>
                   )}
-                  
-                  <div className="space-y-2">
-                    <Label htmlFor="member-email">Email</Label>
-                    <Input
-                      id="member-email"
-                      type="email"
-                      placeholder="seu@email.com"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      required
-                      autoCapitalize="none"
-                      autoComplete="email"
-                    />
-                  </div>
-                  
-                  <div className="space-y-2">
-                    <Label htmlFor="member-password">Palavra-passe</Label>
-                    <Input
-                      id="member-password"
-                      type="password"
-                      placeholder="••••••••"
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      required
-                      autoComplete={isSignUp ? "new-password" : "current-password"}
-                    />
-                  </div>
-                  
+
                   <Button 
                     type="submit" 
-                    className="w-full" 
+                    className="w-full"
                     disabled={loading}
-                    variant="sacred"
                   >
-                    {loading ? "A processar..." : isSignUp ? "Registar como Membro" : "Entrar como Membro"}
+                    {loading ? 'Processando...' : (isSignUp ? 'Cadastrar como Membro' : 'Entrar como Membro')}
                   </Button>
                 </form>
               </TabsContent>
-              
-              <TabsContent value="admin">
-                <form onSubmit={(e) => handleSubmit(e, 'admin')} className="space-y-4">
-                  {isSignUp && (
-                    <div className="space-y-2">
-                      <Label htmlFor="admin-name">Nome (opcional)</Label>
-                      <Input
-                        id="admin-name"
-                        type="text"
-                        placeholder="Seu nome completo"
-                        value={displayName}
-                        onChange={(e) => setDisplayName(e.target.value)}
-                        autoComplete="name"
-                      />
-                    </div>
-                  )}
-                  
+
+              <TabsContent value="admin" className="space-y-4 mt-4">
+                <form onSubmit={handleSubmit} className="space-y-4">
                   <div className="space-y-2">
-                    <Label htmlFor="admin-email">Email de Administrador</Label>
+                    <Label htmlFor="admin-email">Email</Label>
                     <Input
                       id="admin-email"
                       type="email"
-                      placeholder="admin@adpm.pt"
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       required
-                      autoCapitalize="none"
-                      autoComplete="email"
+                      placeholder="admin@email.com"
                     />
                   </div>
                   
                   <div className="space-y-2">
-                    <Label htmlFor="admin-password">Palavra-passe de Admin</Label>
+                    <Label htmlFor="admin-password">Senha</Label>
                     <Input
                       id="admin-password"
                       type="password"
-                      placeholder="••••••••"
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
                       required
-                      autoComplete={isSignUp ? "new-password" : "current-password"}
+                      placeholder="Senha do administrador"
                     />
                   </div>
-                  
+
+                  {isSignUp && (
+                    <div className="space-y-2">
+                      <Label htmlFor="admin-displayName">Nome de Exibição</Label>
+                      <Input
+                        id="admin-displayName"
+                        type="text"
+                        value={displayName}
+                        onChange={(e) => setDisplayName(e.target.value)}
+                        placeholder="Nome do administrador"
+                      />
+                    </div>
+                  )}
+
                   <Button 
                     type="submit" 
-                    className="w-full" 
+                    variant="secondary"
+                    className="w-full"
                     disabled={loading}
-                    variant="hero"
                   >
-                    {loading ? "A processar..." : isSignUp ? "Registar como Admin" : "Entrar como Admin"}
+                    {loading ? 'Processando...' : (isSignUp ? 'Cadastrar como Admin' : 'Entrar como Admin')}
                   </Button>
                 </form>
               </TabsContent>
             </Tabs>
-            
-            <div className="mt-6 text-center">
+
+            <div className="text-center mt-4">
               <Button
                 variant="link"
                 onClick={() => setIsSignUp(!isSignUp)}
                 className="text-sm"
               >
-                {isSignUp ? 'Já tem conta? Iniciar sessão' : 'Não tem conta? Registar'}
+                {isSignUp 
+                  ? 'Já tem uma conta? Fazer login' 
+                  : 'Não tem uma conta? Cadastrar-se'
+                }
               </Button>
             </div>
-            
-            <div className="mt-4 text-center">
-              <p className="text-sm text-muted-foreground">
-                {isSignUp ? 'Ao registar-se, aceita os termos de utilização' : 'Primeira vez aqui?'}{' '}
-                {!isSignUp && (
-                  <span className="text-primary font-medium">
-                    Contacte a liderança para obter acesso
-                  </span>
-                )}
-              </p>
-            </div>
+
+            {isSignUp && (
+              <div className="text-xs text-muted-foreground text-center mt-4 p-3 bg-muted/50 rounded-md">
+                <p>
+                  <strong>Novo aqui?</strong> Cadastre-se como <em>Visitante</em> se esta é sua primeira vez. 
+                  Os administradores podem alterar seu status posteriormente.
+                </p>
+              </div>
+            )}
           </CardContent>
         </Card>
       </div>
     </div>
   );
-};
-
-export default Auth;
+}
